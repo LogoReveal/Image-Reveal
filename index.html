@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Reveal</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .grid-container { display: grid; grid-template-columns: repeat(20, 1fr); width: 400px; margin: auto; }
+        .grid-item { width: 20px; height: 20px; background: black; }
+        img { display: none; max-width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Help Reveal the Image!</h1>
+    <div class="grid-container" id="grid"></div>
+    <img id="finalImage" src="YOUR_IMAGE_URL" alt="Revealed Image">
+    
+    <script>
+        // Firebase Configuration (Replace with your own)
+        const firebaseConfig = {
+  apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
+  authDomain: "logo-reveal-e1a65.firebaseapp.com",
+  projectId: "logo-reveal-e1a65",
+  storageBucket: "logo-reveal-e1a65.firebasestorage.app",
+  messagingSenderId: "575668073504",
+  appId: "1:575668073504:web:1d6db9bcdee11397e63845",
+  measurementId: "G-D2GRKJ16Z6"
+};
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const gridSize = 200;
+        const gridContainer = document.getElementById("grid");
+        let revealedCount = 0;
+
+        async function checkAndReveal() {
+            const docRef = db.collection("imageReveal").doc("progress");
+            const doc = await docRef.get();
+            if (doc.exists) {
+                revealedCount = doc.data().count;
+            } else {
+                await docRef.set({ count: 0 });
+            }
+
+            updateGrid();
+            if (revealedCount >= gridSize) {
+                document.getElementById("finalImage").style.display = "block";
+                gridContainer.style.display = "none";
+            }
+        }
+
+        async function updateVisitors() {
+            const docRef = db.collection("imageReveal").doc("progress");
+            const doc = await docRef.get();
+            if (doc.exists) {
+                revealedCount = doc.data().count;
+                if (revealedCount < gridSize) {
+                    await docRef.update({ count: revealedCount + 1 });
+                    revealedCount++;
+                }
+            }
+            updateGrid();
+        }
+
+        function updateGrid() {
+            gridContainer.innerHTML = "";
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("grid-item");
+                if (i < revealedCount) {
+                    cell.style.background = "transparent";
+                }
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        window.onload = async () => {
+            await checkAndReveal();
+            await updateVisitors();
+        };
+    </script>
+</body>
+</html>
+
