@@ -37,33 +37,35 @@
 <body>
     <div class="grid"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    <!-- ✅ Load Firebase via traditional non-module CDN (Fixes all errors) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-        // Firebase Config (Replace with your Firebase credentials)
-        const firebaseConfig = {
-  apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
-  authDomain: "logo-reveal-e1a65.firebaseapp.com",
-  projectId: "logo-reveal-e1a65",
-  storageBucket: "logo-reveal-e1a65.firebasestorage.app",
-  messagingSenderId: "575668073504",
-  appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-  measurementId: "G-D2GRKJ16Z6"
-};
+    <script>
+        // ✅ Correct Firebase configuration (Replace with your details)
+        var firebaseConfig = {
+            apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
+            authDomain: "logo-reveal-e1a65.firebaseapp.com",
+            projectId: "logo-reveal-e1a65",
+            storageBucket: "logo-reveal-e1a65.appspot.com",
+            messagingSenderId: "575668073504",
+            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
+            measurementId: "G-D2GRKJ16Z6"
+        };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // ✅ Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+
         const gridSize = 10;
         const totalSquares = gridSize * gridSize;
         const grid = document.querySelector('.grid');
 
         function loadRevealedSquares() {
-            const revealedRef = ref(db, "revealedSquares");
+            var revealedRef = database.ref("revealedSquares");
 
-            onValue(revealedRef, (snapshot) => {
-                let revealedIndexes = snapshot.val() || [];
+            revealedRef.once("value", function(snapshot) {
+                var revealedIndexes = snapshot.val() || [];
 
                 // Clear grid before regenerating
                 grid.innerHTML = "";
@@ -92,7 +94,7 @@
 
                     // Update Firebase with the new revealed square
                     revealedIndexes.push(newIndex);
-                    set(revealedRef, revealedIndexes);
+                    revealedRef.set(revealedIndexes);
                 }
             });
         }
