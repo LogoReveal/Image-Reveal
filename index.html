@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEEV 2024 Grid Reveal</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
         body {
             display: flex;
@@ -22,9 +24,10 @@
             position: relative;
         }
         .grid div {
-            width: 100%;
-            height: 100%;
-            background: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true') no-repeat center center / cover;
+            width: 50px;
+            height: 50px;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true');
+            background-size: 500px 500px;
             filter: blur(5px);
             position: relative;
         }
@@ -37,25 +40,62 @@
     <div class="grid"></div>
 
     <script>
+        //  Firebase Config (Replace with your own Firebase keys)
+        const firebaseConfig = {
+  apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
+  authDomain: "logo-reveal-e1a65.firebaseapp.com",
+  projectId: "logo-reveal-e1a65",
+  storageBucket: "logo-reveal-e1a65.firebasestorage.app",
+  messagingSenderId: "575668073504",
+  appId: "1:575668073504:web:1d6db9bcdee11397e63845",
+  measurementId: "G-D2GRKJ16Z6"
+};
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
         const gridSize = 10;
         const totalSquares = gridSize * gridSize;
         const grid = document.querySelector('.grid');
 
-        // Generate grid squares
-        for (let i = 0; i < totalSquares; i++) {
-            const div = document.createElement('div');
-            grid.appendChild(div);
+        // Fetch revealed squares from Firebase
+        function loadRevealedSquares() {
+            db.ref("revealedSquares").once("value", (snapshot) => {
+                let revealedIndexes = snapshot.val() || [];
+
+                // Generate grid squares
+                for (let i = 0; i < totalSquares; i++) {
+                    const div = document.createElement('div');
+
+                    // Correctly position the background
+                    const x = (i % gridSize) * -50;
+                    const y = Math.floor(i / gridSize) * -50;
+                    div.style.backgroundPosition = `${x}px ${y}px`;
+
+                    // Reveal previously stored squares
+                    if (revealedIndexes.includes(i)) {
+                        div.classList.add('revealed');
+                    }
+
+                    grid.appendChild(div);
+                }
+
+                // Pick a new random square that is not yet revealed
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * totalSquares);
+                } while (revealedIndexes.includes(newIndex));
+
+                // Update Firebase with the new revealed square
+                revealedIndexes.push(newIndex);
+                db.ref("revealedSquares").set(revealedIndexes);
+
+                // Reveal the new square
+                grid.children[newIndex].classList.add('revealed');
+            });
         }
 
-        // Select a random square to reveal (store in session to persist per visit)
-        let revealedIndex = sessionStorage.getItem('revealedIndex');
-        if (!revealedIndex) {
-            revealedIndex = Math.floor(Math.random() * totalSquares);
-            sessionStorage.setItem('revealedIndex', revealedIndex);
-        }
-
-        // Apply reveal effect
-        grid.children[revealedIndex].classList.add('revealed');
+        loadRevealedSquares();
     </script>
 </body>
 </html>
