@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collaborative Image Reveal</title>
+    <title>NEEV 2024 Grid Reveal</title>
     <style>
         body {
             display: flex;
@@ -11,6 +11,7 @@
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
+            margin: 0;
         }
         .grid {
             display: grid;
@@ -18,85 +19,43 @@
             grid-template-rows: repeat(10, 1fr);
             width: 500px;
             height: 500px;
-            gap: 5px; /* Added gap for separation */
+            position: relative;
         }
-        .cell {
-            width: 45px;
-            height: 45px;
-            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/refs/heads/main/Logo.png'); /* Your image */
-            background-size: 500px 500px;
-            background-repeat: no-repeat;
-            filter: blur(8px); /* Initially blurred */
-            transition: filter 0.5s ease-in-out;
+        .grid div {
+            width: 100%;
+            height: 100%;
+            background: url('image.png') no-repeat center center / cover;
+            filter: blur(5px);
+            position: relative;
         }
-        .revealed {
-            filter: blur(0px);
+        .grid div.revealed {
+            filter: none;
         }
     </style>
 </head>
 <body>
-
     <div class="grid"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getDatabase, ref, get, update, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+    <script>
+        const gridSize = 10;
+        const totalSquares = gridSize * gridSize;
+        const grid = document.querySelector('.grid');
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
-            authDomain: "logo-reveal-e1a65.firebaseapp.com",
-            projectId: "logo-reveal-e1a65",
-            storageBucket: "logo-reveal-e1a65.appspot.com",
-            messagingSenderId: "575668073504",
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-            measurementId: "G-D2GRKJ16Z6"
-        };
+        // Generate grid squares
+        for (let i = 0; i < totalSquares; i++) {
+            const div = document.createElement('div');
+            grid.appendChild(div);
+        }
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const gridRef = ref(db, 'grid');
+        // Select a random square to reveal (store in session to persist per visit)
+        let revealedIndex = sessionStorage.getItem('revealedIndex');
+        if (!revealedIndex) {
+            revealedIndex = Math.floor(Math.random() * totalSquares);
+            sessionStorage.setItem('revealedIndex', revealedIndex);
+        }
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            const grid = document.querySelector(".grid");
-            let gridData = (await get(gridRef)).val() || {};
-
-            // Create grid cells
-            for (let i = 0; i < 100; i++) {
-                const cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.style.backgroundPosition = `${-(i % 10) * 50}px ${-Math.floor(i / 10) * 50}px`;
-
-                if (gridData[i]) {
-                    cell.classList.add("revealed");
-                }
-
-                cell.dataset.index = i;
-                grid.appendChild(cell);
-            }
-
-            // Randomly reveal a new square for the new visitor
-            const revealNewSquare = async () => {
-                const unrevealedCells = [...grid.children].filter(cell => !cell.classList.contains("revealed"));
-
-                if (unrevealedCells.length === 0) return; // If all are revealed, stop.
-
-                const randomCell = unrevealedCells[Math.floor(Math.random() * unrevealedCells.length)];
-                const index = randomCell.dataset.index;
-
-                // Update Firebase
-                await runTransaction(ref(db, `grid/${index}`), (currentValue) => {
-                    return currentValue ? undefined : true; // Prevent overwriting already revealed cells
-                });
-
-                randomCell.classList.add("revealed"); // Reveal in UI
-            };
-
-            revealNewSquare(); // Call function when page loads
-        });
-
+        // Apply reveal effect
+        grid.children[revealedIndex].classList.add('revealed');
     </script>
-
 </body>
 </html>
