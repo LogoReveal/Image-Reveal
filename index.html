@@ -19,14 +19,17 @@
             width: 500px;
             height: 500px;
         }
-        .cell {
-            width: 100%;
-            height: 100%;
-            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/refs/heads/main/Logo.png'); /* Replace with your image URL */
-            background-size: cover;
-            filter: blur(10px);
-            transition: filter 0.5s;
-        }
+
+	.cell {
+    width: 20px;  /* Adjust based on grid size */
+    height: 20px;
+    background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/refs/heads/main/Logo.png'); /* Use your image URL */
+    background-size: 500px 500px; /* Same as full image size */
+    background-repeat: no-repeat;
+    filter: blur(8px); /* Blurred until revealed */
+    transition: filter 0.5s ease-in-out;
+}
+
         .revealed {
             filter: blur(0px);
         }
@@ -63,13 +66,27 @@
                     cell.classList.add("revealed");
                 }
 
-                cell.addEventListener("click", async () => {
-                    if (!gridData[i]) {
-                        gridData[i] = true;
-                        await set(gridRef, gridData);
-                        cell.classList.add("revealed");
-                    }
-                });
+                // Track visitors in Firebase
+const visitorRef = ref(db, 'visitorCount');
+
+let visitorCount = await get(visitorRef).then(snapshot => snapshot.val()) || 0;
+
+if (!sessionStorage.getItem('visited')) {
+    visitorCount++;
+    await set(visitorRef, visitorCount);
+
+    // Reveal the next square
+    let unrevealedCells = Object.keys(gridData).filter(index => !gridData[index]);
+
+    if (unrevealedCells.length > 0) {
+        let randomIndex = unrevealedCells[Math.floor(Math.random() * unrevealedCells.length)];
+        gridData[randomIndex] = true;
+        await set(gridRef, gridData);
+    }
+
+    sessionStorage.setItem('visited', 'true');
+}
+
 
                 grid.appendChild(cell);
             }
