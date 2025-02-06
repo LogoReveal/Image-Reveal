@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEEV 2024 Logo Reveal</title>
+    <title>NEEV 2024 Grid Reveal</title>
     <style>
         body {
             display: flex;
@@ -21,8 +21,6 @@
             margin-bottom: 10px;
             font-weight: bold;
             text-align: center;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
         }
 
         .grid {
@@ -32,8 +30,14 @@
             width: 500px;
             height: 500px;
             position: relative;
-            opacity: 1;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
+            background-size: cover;
+            opacity: 0;
             transition: opacity 0.5s ease-in;
+        }
+
+        .grid.loaded {
+            opacity: 1;
         }
 
         .grid-square {
@@ -44,68 +48,33 @@
             left: 0;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
-            background-size: 500px 500px;
-            background-repeat: no-repeat;
-        }
-
-        .grid-square .old-logo {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/main/old_logo.png'); /* Ensure correct URL */
-            background-size: 500px 500px;
-            z-index: 2;
+            transition: transform 0.8s ease-in-out;
         }
 
         .highlight {
-            border: 4px solid red;
-            box-shadow: 0px 0px 15px red;
-            animation: pulseBorder 1s infinite alternate ease-in-out;
-        }
-
-        @keyframes pulseBorder {
-            from { border-width: 4px; box-shadow: 0px 0px 10px red; }
-            to { border-width: 6px; box-shadow: 0px 0px 20px red; }
-        }
-
-        .glass-break {
-            animation: shake 0.8s ease-in-out, zoomOut 0.5s 0.8s ease-in-out, fadeOut 0.5s 1.2s ease-out;
+            border: 3px solid red !important;
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0) rotate(0); }
-            10% { transform: translateX(-6px) rotate(-3deg); }
-            20% { transform: translateX(6px) rotate(3deg); }
-            30% { transform: translateX(-5px) rotate(-2deg); }
-            40% { transform: translateX(5px) rotate(2deg); }
-            50% { transform: translateX(-4px) rotate(-1deg); }
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-3px, 3px) scale(1.1); }
+            50% { transform: translate(3px, -3px) scale(1.1); }
+            75% { transform: translate(-3px, 3px) scale(1.1); }
+            100% { transform: translate(0, 0) scale(1.2); }
         }
 
-        @keyframes zoomOut {
-            from { transform: scale(1); }
-            to { transform: scale(1.6); }
+        .shaking {
+            animation: shake 0.8s ease-in-out;
         }
 
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-
-        .revealed {
-            transform: rotateY(180deg);
-            transition: transform 0.8s ease-in-out;
-            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/main/logo.png'); /* Ensure correct URL */
-        }
-
-        #progress {
-            font-size: 16px;
-            margin-top: 10px;
-            color: green;
+        .fade-out {
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
         }
     </style>
 </head>
 <body>
-    <div id="message">A piece is about to transform!</div>
+    <div id="message">Loading grid...</div>
     <div class="grid"></div>
     <div id="progress">0% revealed</div>
 
@@ -114,16 +83,14 @@
 
     <script>
         var firebaseConfig = {
-            apiKey: "AIzaSyD4wnK9...",
-            authDomain: "logo-reveal-e1a65.firebaseapp.com",
-            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
-            projectId: "logo-reveal-e1a65",
-            storageBucket: "logo-reveal-e1a65.appspot.com",
-            messagingSenderId: "575668073504",
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-            measurementId: "G-D2GRKJ16Z6"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
 
@@ -149,45 +116,42 @@
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
                     div.dataset.index = i;
-
-                    const oldLayer = document.createElement('div');
-                    oldLayer.classList.add('old-logo');
-                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-
+                    grid.appendChild(div);
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
-
-                    div.appendChild(oldLayer);
-                    grid.appendChild(div);
                 }
 
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+                if (remainingSquares.length > 0) {
+                    let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+                    revealedIndexes.push(newIndex);
+                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
 
-                setTimeout(() => {
-                    message.style.opacity = 1;
-
-                    if (remainingSquares.length > 0) {
-                        let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                        revealedIndexes.push(newIndex);
-
-                        let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-                        if (newSquare) {
+                    if (newSquare) {
+                        setTimeout(() => {
                             newSquare.classList.add("highlight");
+                        }, 500);
 
+                        setTimeout(() => {
+                            newSquare.classList.add("shaking");
+                        }, 1000);
+
+                        setTimeout(() => {
+                            newSquare.classList.remove("highlight", "shaking");
+                            newSquare.classList.add("fade-out");
                             setTimeout(() => {
-                                newSquare.querySelector('.old-logo').classList.add("glass-break");
-
-                                setTimeout(() => {
-                                    newSquare.classList.add("revealed");
-                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                                }, 1300);
-                            }, 1000);
-                        }
-
-                        revealedRef.set(revealedIndexes);
+                                newSquare.classList.add("revealed");
+                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                            }, 500);
+                        }, 2000);
                     }
-                }, 1000);
+                    revealedRef.set(revealedIndexes);
+                } else {
+                    message.innerText = "The entire logo has been revealed! 🎉";
+                }
+                progress.innerText = `${Math.round((revealedIndexes.length / totalSquares) * 100)}% revealed`;
+                setTimeout(() => grid.classList.add('loaded'), 100);
             });
         }
 
