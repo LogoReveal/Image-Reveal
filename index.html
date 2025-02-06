@@ -5,23 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEEV 2024 Logo Reveal</title>
     <style>
-	
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: white;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+	body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: white;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
 
-	body.no-interaction {
-            pointer-events: none;
-        }
+body.no-interaction {
+    pointer-events: none;
+}
 
-	#intro-text {
+#intro-text {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -34,100 +33,100 @@
     opacity: 0;
     transition: opacity 1s ease-in-out;
     z-index: 3;
-text-align: center;
-
+    text-align: center;
 }
 
-        #message {
-            font-size: 18px;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
+#message {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            width: 500px;
-            height: 500px;
-            position: relative;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
-            background-size: cover;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: 500px;
+    height: 500px;
+    position: relative;
+    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
 
-        .grid.loaded {
-            opacity: 1;
-        }
+.grid.loaded {
+    opacity: 1;
+}
 
-        .grid-square {
-            width: 50px;
-            height: 50px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            border: 1px solid rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-	
-	.grid-square.highlight { /* Apply the border here */
+.grid-square {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: transform 0.8s ease-in-out; /* Transition on grid-square */
+}
+
+.grid-square .black-layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    z-index: 1;
+}
+
+.grid-square .old-logo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+    background-size: 500px 500px;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out; /* Opacity transition on old-logo */
+}
+
+.grid-square.revealed .old-logo {
+    opacity: 0;
+}
+
+.revealed {
+    transform: rotateY(180deg); /* Transform on grid-square */
+}
+
+.highlight {
+    border: 5px solid red !important; /* Keep this for other highlights if needed */
+}
+
+.grid-square.highlight { /* Apply border and animation to grid-square */
     border: 5px solid red !important;
-	animation: highlightAnim 1.5s ease-in-out forwards;
+    animation: highlightAnim 1.5s ease-in-out forwards;
 }
 
-        .grid-square .black-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            z-index: 1;
-        }
 
-        .grid-square .old-logo {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: 500px 500px;
-            z-index: 2;
-            opacity: 1;
-            transition: opacity 0.3s ease-in-out, border 0.3s ease-in-out;
-        }
+@keyframes highlightAnim {
+    0% { transform: scale(1); opacity: 1; }
+    20% { transform: scale(1.6) rotate(15deg); }
+    40% { transform: scale(1.6) rotate(-15deg); }
+    60% { transform: scale(1.6) rotate(15deg); }
+    80% { transform: scale(1.6) rotate(-15deg); }
+    100% { transform: scale(1); opacity: 0; border-color: transparent; }
+}
 
-        .grid-square.revealed .old-logo {
-            opacity: 0;
-        }
-
-        .revealed {
-            transform: rotateY(180deg);
-        }
-
-        .highlight {
-            border: 5px solid red !important;
-            /* animation: highlightAnim 1.5s ease-in-out forwards; */
-        }
-
-        @keyframes highlightAnim {
-            0% { transform: scale(1); opacity: 1; }
-            20% { transform: scale(1.6) rotate(15deg); }
-            40% { transform: scale(1.6) rotate(-15deg); }
-            60% { transform: scale(1.6) rotate(15deg); }
-            80% { transform: scale(1.6) rotate(-15deg); }
-            100% { transform: scale(1); opacity: 0; border-color: transparent; }
-        }
-
-        #progress {
-            font-size: 16px;
-            margin-top: 10px;
-            color: green;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
+#progress {
+    font-size: 16px;
+    margin-top: 10px;
+    color: green;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
     </style>
 </head>
 <body>
