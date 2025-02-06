@@ -103,105 +103,50 @@
     <div class="grid"></div>
     <div id="progress">0% revealed</div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyD4wnK9...",
-            authDomain: "logo-reveal-e1a65.firebaseapp.com",
-            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
-            projectId: "logo-reveal-e1a65",
-            storageBucket: "logo-reveal-e1a65.appspot.com",
-            messagingSenderId: "575668073504",
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-            measurementId: "G-D2GRKJ16Z6"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var database = firebase.database();
-
         const gridSize = 10;
         const totalSquares = gridSize * gridSize;
         const grid = document.querySelector('.grid');
         const message = document.getElementById("message");
         const progress = document.getElementById("progress");
 
-        function preloadImages(images, callback) {
-            let loaded = 0;
-            images.forEach(src => {
-                const img = new Image();
-                img.src = src;
-                img.onload = () => {
-                    loaded++;
-                    if (loaded === images.length) {
-                        callback();
-                    }
-                };
-            });
+        function loadGrid() {
+            grid.innerHTML = "";
+            for (let i = 0; i < totalSquares; i++) {
+                const div = document.createElement('div');
+                div.classList.add('grid-square');
+                div.style.left = `${(i % gridSize) * 50}px`;
+                div.style.top = `${Math.floor(i / gridSize) * 50}px`;
+                div.dataset.index = i;
+
+                const oldLayer = document.createElement('div');
+                oldLayer.classList.add('old-logo');
+                oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
+                div.appendChild(oldLayer);
+                grid.appendChild(div);
+            }
         }
 
-        function loadRevealedSquares() {
-            var revealedRef = database.ref("revealedSquares");
+        function revealSquare() {
+            let squares = document.querySelectorAll(".grid-square:not(.revealed)");
+            if (squares.length === 0) {
+                message.innerText = "The entire logo has been revealed! 🎉";
+                return;
+            }
 
-            revealedRef.once("value", function(snapshot) {
-                var revealedIndexes = snapshot.val() || [];
-                if (!Array.isArray(revealedIndexes)) {
-                    revealedIndexes = [];
-                }
-
-                grid.innerHTML = "";
-                for (let i = 0; i < totalSquares; i++) {
-                    const div = document.createElement('div');
-                    div.classList.add('grid-square');
-                    div.style.left = `${(i % gridSize) * 50}px`;
-                    div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                    div.dataset.index = i;
-
-                    const oldLayer = document.createElement('div');
-                    oldLayer.classList.add('old-logo');
-                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-
-                    if (revealedIndexes.includes(i)) {
-                        div.classList.add('revealed');
-                    }
-
-                    div.appendChild(oldLayer);
-                    grid.appendChild(div);
-                }
-
-                let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
-
-                if (remainingSquares.length > 0) {
-                    let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                    revealedIndexes.push(newIndex);
-
-                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-                    if (newSquare) {
-                        setTimeout(() => { message.style.opacity = 1; }, 500);
-                        setTimeout(() => { newSquare.classList.add("highlight"); }, 1500);
-                        setTimeout(() => { newSquare.classList.add("shake"); }, 2000);
-                        setTimeout(() => { newSquare.classList.remove("highlight", "shake"); newSquare.classList.add("revealed"); }, 2500);
-                        setTimeout(() => { message.innerText = "Another piece is transformed! Let’s complete the logo together."; }, 3000);
-                    }
-
-                    revealedRef.set(revealedIndexes);
-                } else {
-                    message.innerText = "The entire logo has been revealed! 🎉";
-                }
-
-                progress.innerText = `${Math.round((revealedIndexes.length / totalSquares) * 100)}% revealed`;
-                progress.style.opacity = 1;
-
-                setTimeout(() => grid.classList.add('loaded'), 100);
-            });
+            let randomSquare = squares[Math.floor(Math.random() * squares.length)];
+            setTimeout(() => { message.style.opacity = 1; }, 500);
+            setTimeout(() => { randomSquare.classList.add("highlight"); }, 1500);
+            setTimeout(() => { randomSquare.classList.add("shake"); }, 2000);
+            setTimeout(() => { randomSquare.classList.remove("highlight", "shake"); randomSquare.classList.add("revealed"); }, 2500);
+            setTimeout(() => { message.innerText = "Another piece is transformed! Let’s complete the logo together."; }, 3000);
+            progress.innerText = `${Math.round(((totalSquares - squares.length + 1) / totalSquares) * 100)}% revealed`;
+            progress.style.opacity = 1;
         }
 
-        preloadImages([
-            'https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true',
-            'https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'
-        ], () => {
-            grid.style.opacity = 1;
-            loadRevealedSquares();
+        document.addEventListener("DOMContentLoaded", () => {
+            loadGrid();
+            setTimeout(() => { grid.classList.add('loaded'); revealSquare(); }, 1000);
         });
     </script>
 </body>
