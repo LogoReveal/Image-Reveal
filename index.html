@@ -50,8 +50,9 @@
             left: 0;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
+            overflow: hidden;
+            outline: 1px solid transparent; /* Fix for border issue */
             transition: transform 0.8s ease-in-out, border 0.3s ease-in-out;
-            overflow: hidden; /* Hide content that overflows */
         }
 
         .grid-square .old-logo {
@@ -69,7 +70,6 @@
         .grid-square.revealed .old-logo {
             opacity: 0;
         }
-
 
         .revealed {
             transform: rotateY(180deg);
