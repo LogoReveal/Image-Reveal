@@ -36,6 +36,7 @@
             height: 50px;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_Logo.png?raw=true');
             background-size: 500px 500px;
+            background-repeat: no-repeat;
             display: block;
             z-index: 2;
         }
@@ -88,17 +89,18 @@
                     div.classList.add('grid-square');
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                    div.dataset.index = i; // Store index for easy selection
+                    div.dataset.index = i;
 
                     const oldLayer = document.createElement('div');
                     oldLayer.classList.add('old-logo');
                     oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
 
+                    div.appendChild(oldLayer);
+
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
 
-                    div.appendChild(oldLayer);
                     grid.appendChild(div);
                 }
 
