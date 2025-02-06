@@ -20,22 +20,20 @@
             width: 500px;
             height: 500px;
             position: relative;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true');
+            background-size: 500px 500px;
         }
-        .grid div {
+        .grid-square {
             width: 50px;
             height: 50px;
-            background-size: 500px 500px;
             position: relative;
         }
-        .old-logo {
+        .grid-square .old-logo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_Logo.png?raw=true');
-        }
-        .new-logo {
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true');
-            display: none;
-        }
-        .revealed .new-logo {
-            display: block;
+            background-size: 500px 500px;
         }
         .revealed .old-logo {
             display: none;
@@ -80,16 +78,11 @@
                     oldLayer.classList.add('old-logo');
                     oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
                     
-                    const newLayer = document.createElement('div');
-                    newLayer.classList.add('new-logo');
-                    newLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-                    
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
                     
                     div.appendChild(oldLayer);
-                    div.appendChild(newLayer);
                     grid.appendChild(div);
                 }
 
