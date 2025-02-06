@@ -51,7 +51,7 @@
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
             overflow: hidden;
-            outline: 1px solid transparent; /* Fix for border issue */
+            outline: 2px solid transparent; /* Fix for border issue */
             transition: transform 0.8s ease-in-out, border 0.3s ease-in-out;
         }
 
@@ -77,17 +77,15 @@
 
         .highlight {
             border: 5px solid red !important;
-            animation: highlightAnim 1s ease-in-out forwards;
+            animation: highlightAnim 1.5s ease-in-out forwards;
         }
 
         @keyframes highlightAnim {
             0% { transform: scale(1); opacity: 1; }
-            15% { transform: scale(1.6) rotate(10deg); }
-            30% { transform: scale(1.6) rotate(-10deg); }
-            45% { transform: scale(1.6) rotate(10deg); }
-            60% { transform: scale(1.6) rotate(-10deg); }
-            75% { transform: scale(1.6) rotate(10deg); }
-            90% { transform: scale(1.6) rotate(-10deg); }
+            20% { transform: scale(1.6) rotate(15deg); }
+            40% { transform: scale(1.6) rotate(-15deg); }
+            60% { transform: scale(1.6) rotate(15deg); }
+            80% { transform: scale(1.6) rotate(-15deg); }
             100% { transform: scale(1); opacity: 0; border-color: transparent; }
         }
 
@@ -175,7 +173,7 @@
                             setTimeout(() => {
                                 newSquare.classList.add("revealed");
                                 message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                            }, 1000);
+                            }, 1500); // Match animation length
                         }, 1000);
                     }
 
