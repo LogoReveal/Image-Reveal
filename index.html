@@ -10,7 +10,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: #000;
             margin: 0;
         }
         .grid {
@@ -40,7 +40,7 @@
             z-index: 2;
         }
         .revealed .old-logo {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
@@ -51,6 +51,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
+        // Firebase Configuration
         var firebaseConfig = {
             apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
             authDomain: "logo-reveal-e1a65.firebaseapp.com",
@@ -73,7 +74,13 @@
 
             revealedRef.once("value", function(snapshot) {
                 var revealedIndexes = snapshot.val() || [];
-                console.log("Loaded revealed squares:", revealedIndexes); // Debugging log
+                console.log("📌 Retrieved revealed squares:", revealedIndexes);
+
+                if (!Array.isArray(revealedIndexes)) {
+                    console.error("🚨 Firebase data is not an array! Received:", revealedIndexes);
+                    revealedIndexes = [];
+                }
+
                 grid.innerHTML = "";
 
                 for (let i = 0; i < totalSquares; i++) {
@@ -81,6 +88,7 @@
                     div.classList.add('grid-square');
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
+                    div.dataset.index = i; // Store index for easy selection
 
                     const oldLayer = document.createElement('div');
                     oldLayer.classList.add('old-logo');
@@ -94,15 +102,32 @@
                     grid.appendChild(div);
                 }
 
+                console.log("✔️ Grid initialized with revealed squares");
+
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
-                console.log("Remaining squares:", remainingSquares); // Debugging log
+                console.log("🟡 Remaining squares before update:", remainingSquares);
 
                 if (remainingSquares.length > 0) {
                     let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
                     revealedIndexes.push(newIndex);
-                    console.log("Newly revealed square:", newIndex); // Debugging log
-                    revealedRef.set(revealedIndexes);
+                    console.log("🆕 Newly revealed square:", newIndex);
+
+                    // Update only the revealed square instead of redrawing everything
+                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+                    if (newSquare) {
+                        newSquare.classList.add("revealed");
+                    }
+
+                    revealedRef.set(revealedIndexes, function(error) {
+                        if (error) {
+                            console.error("🚨 Firebase Write Error:", error);
+                        } else {
+                            console.log("✅ Firebase Updated Successfully!");
+                        }
+                    });
                 }
+            }, function (error) {
+                console.error("❌ Firebase Read Error:", error);
             });
         }
 
