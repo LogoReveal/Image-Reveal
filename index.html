@@ -51,20 +51,25 @@
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
             overflow: hidden;
-            outline: 2px solid transparent; /* Fix for border issue */
-            transition: transform 0.8s ease-in-out, border 0.3s ease-in-out;
+        }
+
+        .grid-square .black-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1;
         }
 
         .grid-square .old-logo {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 100%;
+            height: 100%;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
             background-size: 500px 500px;
-            display: block;
             z-index: 2;
             opacity: 1;
-            transition: opacity 0.3s ease-in-out;
+            transition: opacity 0.3s ease-in-out, border 0.3s ease-in-out;
         }
 
         .grid-square.revealed .old-logo {
@@ -143,15 +148,20 @@
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
                     div.dataset.index = i;
 
+                    const blackLayer = document.createElement('div');
+                    blackLayer.classList.add('black-layer');
+                    div.appendChild(blackLayer);
+
                     const oldLayer = document.createElement('div');
                     oldLayer.classList.add('old-logo');
                     oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
+                    div.appendChild(oldLayer);
+
 
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
 
-                    div.appendChild(oldLayer);
                     grid.appendChild(div);
                 }
 
@@ -173,7 +183,7 @@
                             setTimeout(() => {
                                 newSquare.classList.add("revealed");
                                 message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                            }, 1500); // Match animation length
+                            }, 1500);
                         }, 1000);
                     }
 
