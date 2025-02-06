@@ -7,12 +7,22 @@
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
-            background-color: white; /* ✅ Changed to white */
+            background-color: white;
             margin: 0;
+            font-family: Arial, sans-serif;
         }
+
+        #message {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -20,45 +30,62 @@
             width: 500px;
             height: 500px;
             position: relative;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true'); /* ✅ Corrected */
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
             background-size: cover;
-            opacity: 0; /* ✅ Initially hide the background */
-            transition: opacity 0.3s ease-in;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
         }
+
         .grid.loaded {
-            opacity: 1; /* ✅ Show background after grid loads */
+            opacity: 1;
         }
+
         .grid-square {
             width: 50px;
             height: 50px;
             position: absolute;
             top: 0;
             left: 0;
-            border: 1px solid rgba(0, 0, 0, 0.3); /* ✅ Added thin grid lines */
+            border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
+            transform: rotateY(0);
+            transition: transform 0.8s ease-in-out;
         }
+
         .grid-square .old-logo {
             position: absolute;
             width: 50px;
             height: 50px;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'); /* ✅ Corrected */
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
             background-size: 500px 500px;
             display: block;
             z-index: 2;
         }
+
         .revealed .old-logo {
             display: none !important;
+        }
+
+        .revealed {
+            transform: rotateY(180deg);
+        }
+
+        #progress {
+            font-size: 16px;
+            margin-top: 10px;
+            color: green;
         }
     </style>
 </head>
 <body>
+    <div id="message">A new part of the logo is about to be revealed...</div>
     <div class="grid"></div>
+    <div id="progress">0% revealed</div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // ✅ Firebase Configuration
         var firebaseConfig = {
             apiKey: "AIzaSyD4wnK9...",
             authDomain: "logo-reveal-e1a65.firebaseapp.com",
@@ -75,27 +102,25 @@
         const gridSize = 10;
         const totalSquares = gridSize * gridSize;
         const grid = document.querySelector('.grid');
+        const message = document.getElementById("message");
+        const progress = document.getElementById("progress");
 
         function loadRevealedSquares() {
             var revealedRef = database.ref("revealedSquares");
 
             revealedRef.once("value", function(snapshot) {
                 var revealedIndexes = snapshot.val() || [];
-                console.log("📌 Retrieved revealed squares:", revealedIndexes);
-
                 if (!Array.isArray(revealedIndexes)) {
-                    console.error("🚨 Firebase data is not an array! Received:", revealedIndexes);
                     revealedIndexes = [];
                 }
 
                 grid.innerHTML = "";
-
                 for (let i = 0; i < totalSquares; i++) {
                     const div = document.createElement('div');
                     div.classList.add('grid-square');
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                    div.dataset.index = i; // Store index for easy selection
+                    div.dataset.index = i;
 
                     const oldLayer = document.createElement('div');
                     oldLayer.classList.add('old-logo');
@@ -109,30 +134,31 @@
                     grid.appendChild(div);
                 }
 
-                console.log("✔️ Grid initialized with revealed squares");
-
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
-                console.log("🟡 Remaining squares before update:", remainingSquares);
 
                 if (remainingSquares.length > 0) {
                     let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
                     revealedIndexes.push(newIndex);
-                    console.log("🆕 Newly revealed square:", newIndex);
 
-                    // ✅ Firebase Update Optimization
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
-                        newSquare.classList.add("revealed");
+                        setTimeout(() => {
+                            newSquare.classList.add("revealed");
+                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                        }, 1000);
                     }
 
-                    revealedRef.set(revealedIndexes)
-                        .then(() => console.log("✅ Firebase Updated Successfully!"))
-                        .catch((error) => console.error("🚨 Firebase Write Error:", error));
+                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                        .catch((error) => console.error("Firebase Write Error:", error));
+                } else {
+                    message.innerText = "The entire logo has been revealed! 🎉";
                 }
 
-                // ✅ Reveal the grid smoothly
+                let revealedCount = revealedIndexes.length;
+                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+
                 setTimeout(() => grid.classList.add('loaded'), 100);
-            }).catch(error => console.error("❌ Firebase Read Error:", error));
+            }).catch(error => console.error("Firebase Read Error:", error));
         }
 
         loadRevealedSquares();
