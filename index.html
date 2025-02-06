@@ -48,8 +48,9 @@
             position: absolute;
             top: 0;
             left: 0;
-            border: 1px solid rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
+            background-color: white;
             transition: transform 1s ease-in-out, border 0.3s ease-in-out;
         }
 
@@ -60,7 +61,7 @@
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
             background-size: 500px 500px;
             z-index: 2;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.8s ease-in-out;
         }
 
         .revealed .old-logo {
@@ -68,21 +69,24 @@
         }
 
         .highlight {
-            border: 4px solid red !important;
-            animation: shake 0.5s ease-in-out infinite alternate, zoomIn 0.5s ease-in-out forwards;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(5px); }
+            border: 5px solid red !important;
+            animation: zoomIn 0.4s ease-in-out forwards;
         }
 
         @keyframes zoomIn {
             0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
+            100% { transform: scale(1.1); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out 2;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
         }
 
         #progress {
@@ -173,30 +177,23 @@
 
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
-                        setTimeout(() => {
-                            message.style.opacity = 1;
-                            newSquare.classList.add("highlight");
-                        }, 1000);
-
-                        setTimeout(() => {
-                            newSquare.classList.remove("highlight");
-                            newSquare.classList.add("revealed");
-                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                        }, 2500);
+                        setTimeout(() => { message.style.opacity = 1; }, 500);
+                        setTimeout(() => { newSquare.classList.add("highlight"); }, 1500);
+                        setTimeout(() => { newSquare.classList.add("shake"); }, 2000);
+                        setTimeout(() => { newSquare.classList.remove("highlight", "shake"); newSquare.classList.add("revealed"); }, 2500);
+                        setTimeout(() => { message.innerText = "Another piece is transformed! Let’s complete the logo together."; }, 3000);
                     }
 
-                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                        .catch((error) => console.error("Firebase Write Error:", error));
+                    revealedRef.set(revealedIndexes);
                 } else {
                     message.innerText = "The entire logo has been revealed! 🎉";
                 }
 
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                progress.innerText = `${Math.round((revealedIndexes.length / totalSquares) * 100)}% revealed`;
                 progress.style.opacity = 1;
 
                 setTimeout(() => grid.classList.add('loaded'), 100);
-            }).catch(error => console.error("Firebase Read Error:", error));
+            });
         }
 
         preloadImages([
