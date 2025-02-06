@@ -21,6 +21,8 @@
             margin-bottom: 10px;
             font-weight: bold;
             text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
         .grid {
@@ -60,23 +62,40 @@
             z-index: 2;
         }
 
-        /* 🔥 Glass Break Effect */
+        /* 🔥 Highlight Before Animation */
+        .highlight {
+            border: 4px solid red;
+            box-shadow: 0px 0px 10px red;
+            animation: pulseBorder 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseBorder {
+            from { border-width: 4px; box-shadow: 0px 0px 10px red; }
+            to { border-width: 6px; box-shadow: 0px 0px 20px red; }
+        }
+
+        /* 🔥 Stronger Shake, Zoom & Fade Effect */
         .glass-break {
-            animation: shake 0.4s ease-in-out, zoomOut 0.3s 0.4s ease-in-out, fadeOut 0.5s 0.6s ease-out;
+            animation: shake 0.6s ease-in-out, zoomOut 0.4s 0.6s ease-in-out, fadeOut 0.5s 1s ease-out;
         }
 
         @keyframes shake {
             0% { transform: translateX(0) rotate(0); }
-            20% { transform: translateX(-3px) rotate(-2deg); }
-            40% { transform: translateX(3px) rotate(2deg); }
-            60% { transform: translateX(-2px) rotate(-1deg); }
-            80% { transform: translateX(2px) rotate(1deg); }
+            10% { transform: translateX(-5px) rotate(-2deg); }
+            20% { transform: translateX(5px) rotate(2deg); }
+            30% { transform: translateX(-4px) rotate(-1deg); }
+            40% { transform: translateX(4px) rotate(1deg); }
+            50% { transform: translateX(-3px) rotate(-1deg); }
+            60% { transform: translateX(3px) rotate(1deg); }
+            70% { transform: translateX(-2px) rotate(0deg); }
+            80% { transform: translateX(2px) rotate(0deg); }
+            90% { transform: translateX(-1px) rotate(0deg); }
             100% { transform: translateX(0) rotate(0); }
         }
 
         @keyframes zoomOut {
             from { transform: scale(1); }
-            to { transform: scale(1.3); }
+            to { transform: scale(1.5); }
         }
 
         @keyframes fadeOut {
@@ -156,33 +175,31 @@
 
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
-                if (remainingSquares.length > 0) {
-                    let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                    revealedIndexes.push(newIndex);
+                setTimeout(() => {
+                    message.style.opacity = 1;
 
-                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-                    if (newSquare) {
-                        setTimeout(() => {
-                            newSquare.querySelector('.old-logo').classList.add("glass-break");
+                    if (remainingSquares.length > 0) {
+                        let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+                        revealedIndexes.push(newIndex);
+
+                        let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+                        if (newSquare) {
+                            newSquare.classList.add("highlight");
 
                             setTimeout(() => {
-                                newSquare.classList.add("revealed");
-                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                newSquare.querySelector('.old-logo').classList.add("glass-break");
+
+                                setTimeout(() => {
+                                    newSquare.classList.add("revealed");
+                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                }, 1300);
                             }, 1000);
-                        }, 500);
+                        }
+
+                        revealedRef.set(revealedIndexes);
                     }
-
-                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                        .catch((error) => console.error("Firebase Write Error:", error));
-                } else {
-                    message.innerText = "The entire logo has been revealed! 🎉";
-                }
-
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-
-                setTimeout(() => grid.classList.add('loaded'), 100);
-            }).catch(error => console.error("Firebase Read Error:", error));
+                }, 1000);
+            });
         }
 
         loadRevealedSquares();
