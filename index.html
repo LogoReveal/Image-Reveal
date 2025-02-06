@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEEV 2024 Grid Reveal</title>
+    <title>NEEV 2024 Logo Reveal</title>
     <style>
+	
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: white;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+	body.no-interaction {
+            pointer-events: none;
+        }
+
 	#intro-text {
     position: absolute;
     top: 50%;
@@ -18,17 +34,9 @@
     opacity: 0;
     transition: opacity 1s ease-in-out;
     z-index: 3;
+text-align: center;
+
 }
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: white;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
 
         #message {
             font-size: 18px;
@@ -66,6 +74,11 @@
             box-sizing: border-box;
             overflow: hidden;
         }
+	
+	.grid-square.highlight { /* Apply the border here */
+    border: 5px solid red !important;
+	animation: highlightAnim 1.5s ease-in-out forwards;
+}
 
         .grid-square .black-layer {
             position: absolute;
@@ -96,7 +109,7 @@
 
         .highlight {
             border: 5px solid red !important;
-            animation: highlightAnim 1.5s ease-in-out forwards;
+            /* animation: highlightAnim 1.5s ease-in-out forwards; */
         }
 
         @keyframes highlightAnim {
@@ -182,11 +195,16 @@
                 }
 
                 grid.classList.add('loaded');
-		
-		setTimeout(() => {
-    introText.style.opacity = 1;
-    setTimeout(() => introText.style.opacity = 0, 3000); // Hide after 3 seconds
-}, 500); // Delay before showing intro text
+                document.body.classList.add('no-interaction');
+
+                setTimeout(() => {
+                    introText.style.opacity = 1;
+                    setTimeout(() => {
+                        introText.style.opacity = 0;
+                        document.body.classList.remove('no-interaction');
+                    }, 3000);
+                }, 500);
+
 
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
