@@ -195,17 +195,16 @@ text-align: center;
                 }
 
                 grid.classList.add('loaded');
-                document.body.classList.add('no-interaction');
+    document.body.classList.add('no-interaction');
 
-                setTimeout(() => {
-                    introText.style.opacity = 1;
-                    setTimeout(() => {
-                        introText.style.opacity = 0;
-                        document.body.classList.remove('no-interaction');
-                    }, 3000);
-                }, 500);
+    setTimeout(() => {
+        introText.style.opacity = 1;
+        setTimeout(() => {
+            introText.style.opacity = 0;
+            document.body.classList.remove('no-interaction');
 
-
+            // *** KEY CHANGE: Delay everything until intro text is gone ***
+            setTimeout(() => { // Delay for intro text to vanish completely (3000ms + small buffer)
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
                 if (remainingSquares.length > 0) {
@@ -214,19 +213,23 @@ text-align: center;
 
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
-			setTimeout(() => { // Delay before animation
-    message.innerText = "A new part of the logo is about to be revealed...";
-    // ... rest of the code in this block
-}, 1000);  // 1-second delay
-                        message.innerText = "A new part of the logo is about to be revealed...";
-                        message.style.opacity = 1;
-
                         setTimeout(() => {
-                            newSquare.classList.add("highlight");
+                            message.innerText = "A new part of the logo is about to be revealed...";
+                            message.style.opacity = 1;
+
                             setTimeout(() => {
-                                newSquare.classList.add("revealed");
-                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                            }, 1500);
+                                newSquare.classList.add("highlight");
+                                setTimeout(() => {
+                                    newSquare.classList.add("revealed");
+                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+
+                                    // *** KEY CHANGE: Update progress AFTER reveal ***
+                                    let revealedCount = revealedIndexes.length;
+                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                                    progress.style.opacity = 1;
+
+                                }, 1500);
+                            }, 1000);
                         }, 1000);
                     }
 
@@ -235,14 +238,12 @@ text-align: center;
                 } else {
                     message.innerText = "The entire logo has been revealed! 🎉";
                     message.style.opacity = 1;
+                     let revealedCount = revealedIndexes.length;
+                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                                    progress.style.opacity = 1;
                 }
-
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                progress.style.opacity = 1;
-
-            }).catch(error => console.error("Firebase Read Error:", error));
-        }
+            }, 3500); // 3000ms (intro text) + 500ms buffer
+        }, 500);
 
         loadRevealedSquares();
     </script>
