@@ -32,14 +32,8 @@
             width: 500px;
             height: 500px;
             position: relative;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
-            background-size: cover;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        }
-
-        .grid.loaded {
             opacity: 1;
+            transition: opacity 0.5s ease-in;
         }
 
         .grid-square {
@@ -50,21 +44,19 @@
             left: 0;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
-            perspective: 1000px;
+            background-size: 500px 500px;
+            background-repeat: no-repeat;
         }
 
         .grid-square .old-logo {
             position: absolute;
             width: 50px;
             height: 50px;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/main/old_logo.png'); /* Ensure correct URL */
             background-size: 500px 500px;
-            display: block;
             z-index: 2;
-            backface-visibility: hidden;
         }
 
-        /* 🔥 Highlight Before Animation */
         .highlight {
             border: 4px solid red;
             box-shadow: 0px 0px 15px red;
@@ -76,7 +68,6 @@
             to { border-width: 6px; box-shadow: 0px 0px 20px red; }
         }
 
-        /* 🔥 Stronger Shake, Zoom & Fade Effect */
         .glass-break {
             animation: shake 0.8s ease-in-out, zoomOut 0.5s 0.8s ease-in-out, fadeOut 0.5s 1.2s ease-out;
         }
@@ -88,10 +79,6 @@
             30% { transform: translateX(-5px) rotate(-2deg); }
             40% { transform: translateX(5px) rotate(2deg); }
             50% { transform: translateX(-4px) rotate(-1deg); }
-            60% { transform: translateX(4px) rotate(1deg); }
-            70% { transform: translateX(-3px) rotate(0deg); }
-            80% { transform: translateX(3px) rotate(0deg); }
-            90% { transform: translateX(-2px) rotate(0deg); }
         }
 
         @keyframes zoomOut {
@@ -104,10 +91,10 @@
             to { opacity: 0; }
         }
 
-        /* Flip Animation for Revealed Square */
         .revealed {
             transform: rotateY(180deg);
             transition: transform 0.8s ease-in-out;
+            background-image: url('https://raw.githubusercontent.com/LogoReveal/Image-Reveal/main/logo.png'); /* Ensure correct URL */
         }
 
         #progress {
@@ -136,6 +123,7 @@
             appId: "1:575668073504:web:1d6db9bcdee11397e63845",
             measurementId: "G-D2GRKJ16Z6"
         };
+
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
 
