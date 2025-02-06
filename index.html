@@ -74,32 +74,14 @@
 
         .highlight {
             border: 5px solid red !important;
-            animation: highlightAnim 0.5s ease-in-out;
+            animation: highlightAnim 1s ease-in-out forwards;
         }
 
         @keyframes highlightAnim {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.1); }
-        }
-
-        .zoom-in {
-            animation: zoomIn 0.5s ease-in-out;
-        }
-
-        @keyframes zoomIn {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.2); }
-        }
-
-        .shake {
-            animation: shake 0.3s ease-in-out 2;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2) rotate(10deg); border-width: 8px; }
+            75% { transform: scale(1.1) rotate(-10deg); }
+            100% { transform: scale(1); opacity: 0; border-color: transparent; }
         }
 
         #progress {
@@ -110,26 +92,25 @@
             transition: opacity 1s ease-in-out;
         }
     </style>
-
 </head>
 <body>
-    <div id="message">A new part of the logo is about to be revealed...</div>
+    <div id="message"></div>
     <div class="grid"></div>
-    <div id="progress">0% revealed</div>
+    <div id="progress"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
         var firebaseConfig = {
-            apiKey: "AIzaSyD4wnK9...",
-            authDomain: "logo-reveal-e1a65.firebaseapp.com",
-            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
-            projectId: "logo-reveal-e1a65",
-            storageBucket: "logo-reveal-e1a65.appspot.com",
-            messagingSenderId: "575668073504",
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-            measurementId: "G-D2GRKJ16Z6"
+            apiKey: "AIzaSyD4wnK9...", // Replace with your actual API key
+            authDomain: "logo-reveal-e1a65.firebaseapp.com", // Replace if different
+            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/", // Replace if different
+            projectId: "logo-reveal-e1a65", // Replace if different
+            storageBucket: "logo-reveal-e1a65.appspot.com", // Replace if different
+            messagingSenderId: "575668073504", // Replace if different
+            appId: "1:575668073504:web:1d6db9bcdee11397e63845", // Replace if different
+            measurementId: "G-D2GRKJ16Z6" // Replace if different
         };
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
@@ -169,6 +150,8 @@
                     grid.appendChild(div);
                 }
 
+                grid.classList.add('loaded');
+
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
                 if (remainingSquares.length > 0) {
@@ -177,9 +160,15 @@
 
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
+                        message.innerText = "A new part of the logo is about to be revealed...";
+                        message.style.opacity = 1;
+
                         setTimeout(() => {
-                            newSquare.classList.add("revealed");
-                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                            newSquare.classList.add("highlight");
+                            setTimeout(() => {
+                                newSquare.classList.add("revealed");
+                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                            }, 1000);
                         }, 1000);
                     }
 
@@ -187,12 +176,13 @@
                         .catch((error) => console.error("Firebase Write Error:", error));
                 } else {
                     message.innerText = "The entire logo has been revealed! 🎉";
+                    message.style.opacity = 1;
                 }
 
                 let revealedCount = revealedIndexes.length;
                 progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                progress.style.opacity = 1;
 
-                setTimeout(() => grid.classList.add('loaded'), 100);
             }).catch(error => console.error("Firebase Read Error:", error));
         }
 
