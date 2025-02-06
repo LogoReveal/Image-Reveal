@@ -48,8 +48,6 @@
             left: 0;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
-            transform: rotateY(0);
-            transition: transform 0.8s ease-in-out;
         }
 
         .grid-square .old-logo {
@@ -62,12 +60,34 @@
             z-index: 2;
         }
 
-        .revealed .old-logo {
-            display: none !important;
+        /* 🔥 Glass Break Effect */
+        .glass-break {
+            animation: shake 0.4s ease-in-out, zoomOut 0.3s 0.4s ease-in-out, fadeOut 0.5s 0.6s ease-out;
         }
 
+        @keyframes shake {
+            0% { transform: translateX(0) rotate(0); }
+            20% { transform: translateX(-3px) rotate(-2deg); }
+            40% { transform: translateX(3px) rotate(2deg); }
+            60% { transform: translateX(-2px) rotate(-1deg); }
+            80% { transform: translateX(2px) rotate(1deg); }
+            100% { transform: translateX(0) rotate(0); }
+        }
+
+        @keyframes zoomOut {
+            from { transform: scale(1); }
+            to { transform: scale(1.3); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Flip Animation for Revealed Square */
         .revealed {
             transform: rotateY(180deg);
+            transition: transform 0.8s ease-in-out;
         }
 
         #progress {
@@ -143,9 +163,13 @@
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
                         setTimeout(() => {
-                            newSquare.classList.add("revealed");
-                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                        }, 1000);
+                            newSquare.querySelector('.old-logo').classList.add("glass-break");
+
+                            setTimeout(() => {
+                                newSquare.classList.add("revealed");
+                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                            }, 1000);
+                        }, 500);
                     }
 
                     revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
