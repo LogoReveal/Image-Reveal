@@ -20,7 +20,7 @@
             width: 500px;
             height: 500px;
             position: relative;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true');
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true'); /* ✅ Replace with real URL */
             background-size: cover;
         }
         .grid-square {
@@ -34,9 +34,8 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_Logo.png?raw=true');
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'); /* ✅ Replace with real URL */
             background-size: 500px 500px;
-            background-repeat: no-repeat;
             display: block;
             z-index: 2;
         }
@@ -52,9 +51,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // Firebase Configuration
+        // ✅ Firebase Configuration
         var firebaseConfig = {
-            apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
+            apiKey: "AIzaSyD4wnK9...",
             authDomain: "logo-reveal-e1a65.firebaseapp.com",
             databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
             projectId: "logo-reveal-e1a65",
@@ -89,18 +88,17 @@
                     div.classList.add('grid-square');
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                    div.dataset.index = i;
+                    div.dataset.index = i; // Store index for easy selection
 
                     const oldLayer = document.createElement('div');
                     oldLayer.classList.add('old-logo');
                     oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
 
-                    div.appendChild(oldLayer);
-
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
 
+                    div.appendChild(oldLayer);
                     grid.appendChild(div);
                 }
 
@@ -114,23 +112,17 @@
                     revealedIndexes.push(newIndex);
                     console.log("🆕 Newly revealed square:", newIndex);
 
-                    // Update only the revealed square instead of redrawing everything
+                    // ✅ Efficient Firebase Update
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
                         newSquare.classList.add("revealed");
                     }
 
-                    revealedRef.set(revealedIndexes, function(error) {
-                        if (error) {
-                            console.error("🚨 Firebase Write Error:", error);
-                        } else {
-                            console.log("✅ Firebase Updated Successfully!");
-                        }
-                    });
+                    revealedRef.set(revealedIndexes)
+                        .then(() => console.log("✅ Firebase Updated Successfully!"))
+                        .catch((error) => console.error("🚨 Firebase Write Error:", error));
                 }
-            }, function (error) {
-                console.error("❌ Firebase Read Error:", error);
-            });
+            }).catch(error => console.error("❌ Firebase Read Error:", error));
         }
 
         loadRevealedSquares();
