@@ -20,7 +20,7 @@
             width: 500px;
             height: 500px;
             position: relative;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true'); /* ✅ Replace with real URL */
+            background-image: url('https://i.imgur.com/ONrOlta.png'); /* ✅ Fixed */
             background-size: cover;
         }
         .grid-square {
@@ -34,7 +34,7 @@
             position: absolute;
             width: 50px;
             height: 50px;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'); /* ✅ Replace with real URL */
+            background-image: url('https://i.imgur.com/zNymeCY.png'); /* ✅ Fixed */
             background-size: 500px 500px;
             display: block;
             z-index: 2;
@@ -112,7 +112,7 @@
                     revealedIndexes.push(newIndex);
                     console.log("🆕 Newly revealed square:", newIndex);
 
-                    // ✅ Efficient Firebase Update
+                    // ✅ Firebase Update Optimization
                     let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
                         newSquare.classList.add("revealed");
