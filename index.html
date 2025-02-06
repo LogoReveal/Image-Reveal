@@ -21,6 +21,8 @@
             margin-bottom: 10px;
             font-weight: bold;
             text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
 
         .grid {
@@ -48,33 +50,52 @@
             left: 0;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
-            transition: transform 0.8s ease-in-out;
+            transition: transform 1s ease-in-out, border 0.3s ease-in-out;
+        }
+
+        .grid-square .old-logo {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+            background-size: 500px 500px;
+            z-index: 2;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .revealed .old-logo {
+            opacity: 0;
         }
 
         .highlight {
-            border: 3px solid red !important;
+            border: 4px solid red !important;
+            animation: shake 0.5s ease-in-out infinite alternate, zoomIn 0.5s ease-in-out forwards;
         }
 
         @keyframes shake {
-            0% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(-3px, 3px) scale(1.1); }
-            50% { transform: translate(3px, -3px) scale(1.1); }
-            75% { transform: translate(-3px, 3px) scale(1.1); }
-            100% { transform: translate(0, 0) scale(1.2); }
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(5px); }
         }
 
-        .shaking {
-            animation: shake 0.8s ease-in-out;
+        @keyframes zoomIn {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
 
-        .fade-out {
+        #progress {
+            font-size: 16px;
+            margin-top: 10px;
+            color: green;
             opacity: 0;
-            transition: opacity 0.5s ease-in;
+            transition: opacity 1s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="message">Loading grid...</div>
+    <div id="message">A new part of the logo is about to be revealed...</div>
     <div class="grid"></div>
     <div id="progress">0% revealed</div>
 
@@ -83,13 +104,14 @@
 
     <script>
         var firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyD4wnK9...",
+            authDomain: "logo-reveal-e1a65.firebaseapp.com",
+            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
+            projectId: "logo-reveal-e1a65",
+            storageBucket: "logo-reveal-e1a65.appspot.com",
+            messagingSenderId: "575668073504",
+            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
+            measurementId: "G-D2GRKJ16Z6"
         };
         firebase.initializeApp(firebaseConfig);
         var database = firebase.database();
@@ -99,6 +121,20 @@
         const grid = document.querySelector('.grid');
         const message = document.getElementById("message");
         const progress = document.getElementById("progress");
+
+        function preloadImages(images, callback) {
+            let loaded = 0;
+            images.forEach(src => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => {
+                    loaded++;
+                    if (loaded === images.length) {
+                        callback();
+                    }
+                };
+            });
+        }
 
         function loadRevealedSquares() {
             var revealedRef = database.ref("revealedSquares");
@@ -116,46 +152,60 @@
                     div.style.left = `${(i % gridSize) * 50}px`;
                     div.style.top = `${Math.floor(i / gridSize) * 50}px`;
                     div.dataset.index = i;
-                    grid.appendChild(div);
+
+                    const oldLayer = document.createElement('div');
+                    oldLayer.classList.add('old-logo');
+                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
+
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
+
+                    div.appendChild(oldLayer);
+                    grid.appendChild(div);
                 }
 
                 let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+
                 if (remainingSquares.length > 0) {
                     let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
                     revealedIndexes.push(newIndex);
-                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
 
+                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                     if (newSquare) {
                         setTimeout(() => {
+                            message.style.opacity = 1;
                             newSquare.classList.add("highlight");
-                        }, 500);
-
-                        setTimeout(() => {
-                            newSquare.classList.add("shaking");
                         }, 1000);
 
                         setTimeout(() => {
-                            newSquare.classList.remove("highlight", "shaking");
-                            newSquare.classList.add("fade-out");
-                            setTimeout(() => {
-                                newSquare.classList.add("revealed");
-                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                            }, 500);
-                        }, 2000);
+                            newSquare.classList.remove("highlight");
+                            newSquare.classList.add("revealed");
+                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                        }, 2500);
                     }
-                    revealedRef.set(revealedIndexes);
+
+                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                        .catch((error) => console.error("Firebase Write Error:", error));
                 } else {
                     message.innerText = "The entire logo has been revealed! 🎉";
                 }
-                progress.innerText = `${Math.round((revealedIndexes.length / totalSquares) * 100)}% revealed`;
+
+                let revealedCount = revealedIndexes.length;
+                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                progress.style.opacity = 1;
+
                 setTimeout(() => grid.classList.add('loaded'), 100);
-            });
+            }).catch(error => console.error("Firebase Read Error:", error));
         }
 
-        loadRevealedSquares();
+        preloadImages([
+            'https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true',
+            'https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'
+        ], () => {
+            grid.style.opacity = 1;
+            loadRevealedSquares();
+        });
     </script>
 </body>
 </html>
