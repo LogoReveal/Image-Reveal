@@ -141,111 +141,111 @@ text-align: center;
 
     <script>
         var firebaseConfig = {
-            apiKey: "AIzaSyD4wnK9...", // **REPLACE WITH YOUR API KEY**
-            authDomain: "logo-reveal-e1a65.firebaseapp.com", // **REPLACE IF DIFFERENT**
-            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/", // **REPLACE IF DIFFERENT**
-            projectId: "logo-reveal-e1a65", // **REPLACE IF DIFFERENT**
-            storageBucket: "logo-reveal-e1a65.appspot.com", // **REPLACE IF DIFFERENT**
-            messagingSenderId: "575668073504", // **REPLACE IF DIFFERENT**
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845", // **REPLACE IF DIFFERENT**
-            measurementId: "G-D2GRKJ16Z6" // **REPLACE IF DIFFERENT**
-        };
-        firebase.initializeApp(firebaseConfig);
-        var database = firebase.database();
+    apiKey: "AIzaSyD4wnK9...", // **REPLACE WITH YOUR API KEY**
+    authDomain: "logo-reveal-e1a65.firebaseapp.com", // **REPLACE IF DIFFERENT**
+    databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/", // **REPLACE IF DIFFERENT**
+    projectId: "logo-reveal-e1a65", // **REPLACE IF DIFFERENT**
+    storageBucket: "logo-reveal-e1a65.appspot.com", // **REPLACE IF DIFFERENT**
+    messagingSenderId: "575668073504", // **REPLACE IF DIFFERENT**
+    appId: "1:575668073504:web:1d6db9bcdee11397e63845", // **REPLACE IF DIFFERENT**
+    measurementId: "G-D2GRKJ16Z6" // **REPLACE IF DIFFERENT**
+};
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
 
-        const gridSize = 10;
-        const totalSquares = gridSize * gridSize;
-        const grid = document.querySelector('.grid');
-        const message = document.getElementById("message");
-        const progress = document.getElementById("progress");
-	const introText = document.getElementById("intro-text");
+const gridSize = 10;
+const totalSquares = gridSize * gridSize;
+const grid = document.querySelector('.grid');
+const message = document.getElementById("message");
+const progress = document.getElementById("progress");
+const introText = document.getElementById("intro-text");
 
-        function loadRevealedSquares() {
-            var revealedRef = database.ref("revealedSquares");
+function loadRevealedSquares() {
+    var revealedRef = database.ref("revealedSquares");
 
-            revealedRef.once("value", function(snapshot) {
-                var revealedIndexes = snapshot.val() || [];
-                if (!Array.isArray(revealedIndexes)) {
-                    revealedIndexes = [];
-                }
+    revealedRef.once("value", function(snapshot) {
+        var revealedIndexes = snapshot.val() || [];
+        if (!Array.isArray(revealedIndexes)) {
+            revealedIndexes = [];
+        }
 
-                grid.innerHTML = "";
-                for (let i = 0; i < totalSquares; i++) {
-                    const div = document.createElement('div');
-                    div.classList.add('grid-square');
-                    div.style.left = `${(i % gridSize) * 50}px`;
-                    div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                    div.dataset.index = i;
+        grid.innerHTML = "";
+        for (let i = 0; i < totalSquares; i++) {
+            const div = document.createElement('div');
+            div.classList.add('grid-square');
+            div.style.left = `${(i % gridSize) * 50}px`;
+            div.style.top = `${Math.floor(i / gridSize) * 50}px`;
+            div.dataset.index = i;
 
-                    const blackLayer = document.createElement('div');
-                    blackLayer.classList.add('black-layer');
-                    div.appendChild(blackLayer);
+            const blackLayer = document.createElement('div');
+            blackLayer.classList.add('black-layer');
+            div.appendChild(blackLayer);
 
-                    const oldLayer = document.createElement('div');
-                    oldLayer.classList.add('old-logo');
-                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-                    div.appendChild(oldLayer);
+            const oldLayer = document.createElement('div');
+            oldLayer.classList.add('old-logo');
+            oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
+            div.appendChild(oldLayer);
 
+            if (revealedIndexes.includes(i)) {
+                div.classList.add('revealed');
+            }
 
-                    if (revealedIndexes.includes(i)) {
-                        div.classList.add('revealed');
-                    }
+            grid.appendChild(div);
+        }
 
-                    grid.appendChild(div);
-                }
+        grid.classList.add('loaded');
+        document.body.classList.add('no-interaction');
 
-                grid.classList.add('loaded');
-    document.body.classList.add('no-interaction');
-
-    setTimeout(() => {
-        introText.style.opacity = 1;
         setTimeout(() => {
-            introText.style.opacity = 0;
-            document.body.classList.remove('no-interaction');
+            introText.style.opacity = 1;
+            setTimeout(() => {
+                introText.style.opacity = 0;
+                document.body.classList.remove('no-interaction');
 
-            // *** KEY CHANGE: Delay everything until intro text is gone ***
-            setTimeout(() => { // Delay for intro text to vanish completely (3000ms + small buffer)
-                let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+                setTimeout(() => { // Delay for intro text to vanish completely
+                    let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
-                if (remainingSquares.length > 0) {
-                    let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                    revealedIndexes.push(newIndex);
+                    if (remainingSquares.length > 0) {
+                        let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+                        revealedIndexes.push(newIndex);
 
-                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-                    if (newSquare) {
-                        setTimeout(() => {
-                            message.innerText = "A new part of the logo is about to be revealed...";
-                            message.style.opacity = 1;
-
+                        let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+                        if (newSquare) {
                             setTimeout(() => {
-                                newSquare.classList.add("highlight");
+                                message.innerText = "A new part of the logo is about to be revealed...";
+                                message.style.opacity = 1;
+
                                 setTimeout(() => {
-                                    newSquare.classList.add("revealed");
-                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                    newSquare.classList.add("highlight");
+                                    setTimeout(() => {
+                                        newSquare.classList.add("revealed");
+                                        message.innerText = "Another piece is transformed! Let’s complete the logo together.";
 
-                                    // *** KEY CHANGE: Update progress AFTER reveal ***
-                                    let revealedCount = revealedIndexes.length;
-                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                                    progress.style.opacity = 1;
+                                        let revealedCount = revealedIndexes.length;
+                                        progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                                        progress.style.opacity = 1;
 
-                                }, 1500);
+                                    }, 1500);
+                                }, 1000);
                             }, 1000);
-                        }, 1000);
+                        }
+
+                        revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                            .catch((error) => console.error("Firebase Write Error:", error));
+                    } else {
+                        message.innerText = "The entire logo has been revealed! 🎉";
+                        message.style.opacity = 1;
+                        let revealedCount = revealedIndexes.length;
+                        progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                        progress.style.opacity = 1;
                     }
+                }, 3500); // Delay for intro text (3s) + buffer (0.5s)
+            }, 3000); // Intro text fade out time
+        }, 500); // Initial delay before intro text appears
+    }).catch(error => console.error("Firebase Read Error:", error));
+}
 
-                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                        .catch((error) => console.error("Firebase Write Error:", error));
-                } else {
-                    message.innerText = "The entire logo has been revealed! 🎉";
-                    message.style.opacity = 1;
-                     let revealedCount = revealedIndexes.length;
-                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                                    progress.style.opacity = 1;
-                }
-            }, 3500); // 3000ms (intro text) + 500ms buffer
-        }, 500);
-
-        loadRevealedSquares();
+loadRevealedSquares();
     </script>
 </body>
 </html>
