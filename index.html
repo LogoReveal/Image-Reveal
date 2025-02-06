@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEEV 2024 Grid Reveal</title>
+    <title>NEEV 2024 Logo Reveal</title>
     <style>
         body {
             display: flex;
@@ -24,25 +24,37 @@
         .grid div {
             width: 50px;
             height: 50px;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/Logo.png?raw=true');
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true'); /* Old logo */
             background-size: 500px 500px;
-            filter: blur(5px);
             position: relative;
+            transition: opacity 1s ease-in-out; /* Smooth fade effect */
         }
-        .grid div.revealed {
-            filter: none;
+        .grid div::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/new-logo.png?raw=true'); /* New logo */
+            background-size: 500px 500px;
+            opacity: 0; /* Initially hidden */
+            transition: opacity 1s ease-in-out;
+        }
+        .grid div.revealed::after {
+            opacity: 1; /* Reveals new logo */
         }
     </style>
 </head>
 <body>
     <div class="grid"></div>
 
-    <!-- ✅ Load Firebase via traditional non-module CDN (Fixes all errors) -->
+    <!-- ✅ Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        // ✅ Correct Firebase configuration (Replace with your details)
+        // ✅ Firebase Configuration
         var firebaseConfig = {
             apiKey: "AIzaSyD4wnKO0nux-pBA_VmHb1f4RyWYkYbTiUg",
             authDomain: "logo-reveal-e1a65.firebaseapp.com",
@@ -74,10 +86,11 @@
                 for (let i = 0; i < totalSquares; i++) {
                     const div = document.createElement('div');
 
-                    // Correctly position the background
+                    // Position backgrounds correctly
                     const x = (i % gridSize) * -50;
                     const y = Math.floor(i / gridSize) * -50;
                     div.style.backgroundPosition = `${x}px ${y}px`;
+                    div.style.setProperty("--bg-pos", `${x}px ${y}px`); // For pseudo-element
 
                     // Reveal previously stored squares
                     if (revealedIndexes.includes(i)) {
