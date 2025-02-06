@@ -239,7 +239,7 @@ function loadRevealedSquares() {
                         progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
                         progress.style.opacity = 1;
                     }
-                }, 3500); // Delay for intro text (3s) + buffer (0.5s)
+                }, 1000); // Delay for intro text (3s) + buffer (0.5s)
             }, 3000); // Intro text fade out time
         }, 500); // Initial delay before intro text appears
     }).catch(error => console.error("Firebase Read Error:", error));
