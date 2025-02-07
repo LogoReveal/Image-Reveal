@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEEV 2024 Grid Reveal</title>
+    <title>NEEV 2024 Logo Reveal</title>
     <style>
         body {
             display: flex;
@@ -16,19 +16,41 @@
             font-family: Arial, sans-serif;
         }
 
+        body.no-interaction {
+            pointer-events: none;
+        }
+
+        #intro-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 3;
+            text-align: center;
+        }
+
         #message {
             font-size: 18px;
             margin-bottom: 10px;
             font-weight: bold;
             text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(16, 1fr);
             grid-template-rows: repeat(16, 1fr);
-            width: 800px; /* Increased size for 16x16 grid */
-            height: 800px; /* Increased size for 16x16 grid */
+            width: 800px;
+            height: 800px;
             position: relative;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
             background-size: cover;
@@ -41,126 +63,192 @@
         }
 
         .grid-square {
-            width: 50px; /* Size of each small square */
-            height: 50px; /* Size of each small square */
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 100%;
+            height: 100%;
+            position: relative;
             border: 1px solid rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
-            transform: rotateY(0);
-            transition: transform 0.8s ease-in-out;
+            overflow: hidden;
         }
 
         .grid-square .old-logo {
             position: absolute;
-            width: 50px; /* Size of each small square */
-            height: 50px; /* Size of each small square */
+            width: 100%;
+            height: 100%;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: 800px 800px; /* Adjusted for 16x16 grid */
-            display: block;
+            background-size: 800px 800px;
+            background-position: 0 0;
             z-index: 2;
+            transition: opacity 0.8s ease-in-out;
         }
 
-        .revealed .old-logo {
-            display: none !important;
+        .grid-square.highlight .old-logo {
+            border: 5px solid red;
+            animation: highlightAnim 1.5s ease-in-out forwards;
         }
 
-        .revealed {
-            transform: rotateY(180deg);
+        @keyframes highlightAnim {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0; border-color: transparent; }
         }
 
         #progress {
             font-size: 16px;
             margin-top: 10px;
             color: green;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <div id="message">A new part of the logo is about to be revealed...</div>
+    <div id="intro-text">Help us reveal the logo, one piece at a time.</div>
+    <div id="message"></div>
     <div class="grid"></div>
-    <div id="progress">0% revealed</div>
+    <div id="progress"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyD4wnK9...",
-            authDomain: "logo-reveal-e1a65.firebaseapp.com",
-            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
-            projectId: "logo-reveal-e1a65",
-            storageBucket: "logo-reveal-e1a65.appspot.com",
-            messagingSenderId: "575668073504",
-            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
-            measurementId: "G-D2GRKJ16Z6"
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4wnK9...", // **REPLACE WITH YOUR API KEY**
+            authDomain: "logo-reveal-e1a65.firebaseapp.com", // **REPLACE IF DIFFERENT**
+            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/", // **REPLACE IF DIFFERENT**
+            projectId: "logo-reveal-e1a65", // **REPLACE IF DIFFERENT**
+            storageBucket: "logo-reveal-e1a65.appspot.com", // **REPLACE IF DIFFERENT**
+            messagingSenderId: "575668073504", // **REPLACE IF DIFFERENT**
+            appId: "1:575668073504:web:1d6db9bcdee11397e63845", // **REPLACE IF DIFFERENT**
+            measurementId: "G-D2GRKJ16Z6" // **REPLACE IF DIFFERENT**
         };
         firebase.initializeApp(firebaseConfig);
-        var database = firebase.database();
+        const database = firebase.database();
 
-        const gridSize = 16; // Updated to 16x16 grid
+        // Constants
+        const gridSize = 16;
         const totalSquares = gridSize * gridSize;
         const grid = document.querySelector('.grid');
         const message = document.getElementById("message");
         const progress = document.getElementById("progress");
+        const introText = document.getElementById("intro-text");
 
+        // Load revealed squares from Firebase
         function loadRevealedSquares() {
-            var revealedRef = database.ref("revealedSquares");
+            const revealedRef = database.ref("revealedSquares");
+            let revealedIndexes = [];
+            let introShown = false;
 
-            revealedRef.once("value", function(snapshot) {
-                var revealedIndexes = snapshot.val() || [];
-                if (!Array.isArray(revealedIndexes)) {
-                    revealedIndexes = [];
-                }
+            revealedRef.on("value", (snapshot) => {
+                revealedIndexes = snapshot.val() || [];
+                if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
 
+                // Clear and rebuild the grid
                 grid.innerHTML = "";
                 for (let i = 0; i < totalSquares; i++) {
-                    const div = document.createElement('div');
-                    div.classList.add('grid-square');
-                    div.style.left = `${(i % gridSize) * 50}px`; // Position based on 50px squares
-                    div.style.top = `${Math.floor(i / gridSize) * 50}px`; // Position based on 50px squares
-                    div.dataset.index = i;
-
-                    const oldLayer = document.createElement('div');
-                    oldLayer.classList.add('old-logo');
-                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-
-                    if (revealedIndexes.includes(i)) {
-                        div.classList.add('revealed');
-                    }
-
-                    div.appendChild(oldLayer);
-                    grid.appendChild(div);
+                    const square = createGridSquare(i, revealedIndexes.includes(i));
+                    grid.appendChild(square);
                 }
 
-                let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+                // Show intro text and start reveal process
+                grid.classList.add('loaded');
+                document.body.classList.add('no-interaction');
 
-                if (remainingSquares.length > 0) {
-                    let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                    revealedIndexes.push(newIndex);
-
-                    let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-                    if (newSquare) {
+                if (!introShown) {
+                    setTimeout(() => {
+                        introText.style.opacity = 1;
                         setTimeout(() => {
-                            newSquare.classList.add("revealed");
-                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
-                        }, 1000);
-                    }
-
-                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                        .catch((error) => console.error("Firebase Write Error:", error));
+                            introText.style.opacity = 0;
+                            document.body.classList.remove('no-interaction');
+                            introShown = true;
+                            revealNextSquare();
+                        }, 3000);
+                    }, 500);
                 } else {
-                    message.innerText = "The entire logo has been revealed! 🎉";
+                    revealNextSquare();
                 }
-
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-
-                setTimeout(() => grid.classList.add('loaded'), 100);
-            }).catch(error => console.error("Firebase Read Error:", error));
+            }, (error) => {
+                console.error("Firebase Read Error:", error);
+            });
         }
 
+        // Create a grid square
+        function createGridSquare(index, isRevealed) {
+            const div = document.createElement('div');
+            div.classList.add('grid-square');
+            div.dataset.index = index;
+
+            const oldLogo = document.createElement('div');
+            oldLogo.classList.add('old-logo');
+            oldLogo.style.backgroundPosition = `${(index % gridSize) * -(100 / gridSize)}% ${Math.floor(index / gridSize) * -(100 / gridSize)}%`;
+            div.appendChild(oldLogo);
+
+            if (isRevealed) {
+                oldLogo.style.opacity = 0;
+            }
+
+            return div;
+        }
+
+        // Reveal the next square
+        function revealNextSquare() {
+            const revealedRef = database.ref("revealedSquares");
+            let revealedIndexes = [];
+            let revealing = false;
+
+            revealedRef.once("value", (snapshot) => {
+                revealedIndexes = snapshot.val() || [];
+                if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
+
+                const remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+
+                if (remainingSquares.length > 0) {
+                    const newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+                    revealedIndexes.push(newIndex);
+                    const newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+
+                    if (newSquare) {
+                        revealing = true;
+
+                        setTimeout(() => {
+                            message.innerText = "A new part of the logo is about to be revealed...";
+                            message.style.opacity = 1;
+
+                            setTimeout(() => {
+                                newSquare.classList.add("highlight");
+
+                                newSquare.addEventListener('animationend', () => {
+                                    newSquare.querySelector('.old-logo').style.opacity = 0;
+
+                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                    const revealedCount = revealedIndexes.length;
+                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                                    progress.style.opacity = 1;
+
+                                    revealedRef.set(revealedIndexes)
+                                        .then(() => console.log("Firebase Updated Successfully"))
+                                        .catch((error) => console.error("Firebase Write Error:", error));
+
+                                    setTimeout(revealNextSquare, 500);
+                                    revealing = false;
+                                }, { once: true });
+                            }, 1000);
+                        }, 1000);
+                    }
+                } else {
+                    message.innerText = "The entire logo has been revealed! 🎉";
+                    message.style.opacity = 1;
+                    const revealedCount = revealedIndexes.length;
+                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                    progress.style.opacity = 1;
+                }
+            }, (error) => {
+                console.error("Firebase Read Error:", error);
+            });
+        }
+
+        // Initialize
         loadRevealedSquares();
     </script>
 </body>
