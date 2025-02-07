@@ -57,7 +57,7 @@
             width: 50px;
             height: 50px;
             background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: cover;
+            background-size: 800px 800px;
             display: block;
             z-index: 2;
         }
@@ -119,18 +119,18 @@
                     const div = document.createElement('div');
                     div.classList.add('grid-square');
                     div.style.left = `${(i % gridSize) * (100 / gridSize)}%`; // Percentage-based left
-            div.style.top = `${Math.floor(i / gridSize) * (100 / gridSize)}%`; // Percentage-based top
-            div.dataset.index = i;
+        div.style.top = `${Math.floor(i / gridSize) * (100 / gridSize)}%`; // Percentage-based top
+                    div.dataset.index = i;
 
-            const oldLayer = document.createElement('div');
-            oldLayer.classList.add('old-logo');
-            oldLayer.style.backgroundPosition = `${(i % gridSize) * (-100 / gridSize)}% ${Math.floor(i / gridSize) * (-100 / gridSize)}%`; // Percentage-based background position
-            div.appendChild(oldLayer);
+                    const oldLayer = document.createElement('div');
+                    oldLayer.classList.add('old-logo');
+                    oldLayer.style.backgroundPosition = `${(i % gridSize) * (-100 / gridSize)}% ${Math.floor(i / gridSize) * (-100 / gridSize)}%`; // Percentage-based background position
 
                     if (revealedIndexes.includes(i)) {
                         div.classList.add('revealed');
                     }
 
+                    div.appendChild(oldLayer);
                     grid.appendChild(div);
                 }
 
