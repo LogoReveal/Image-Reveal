@@ -201,7 +201,7 @@
         let revealedIndexes = []; // Declare revealedIndexes outside the function
 
         function loadRevealedSquares() {
-            var revealedRef = database.ref("revealedSquares");
+            revealedRef = database.ref("revealedSquares");
             let introShown = false;
 
             revealedRef.on("value", function(snapshot) {
@@ -213,30 +213,8 @@
 
                 grid.innerHTML = "";
                 for (let i = 0; i < totalSquares; i++) {
-                    const div = document.createElement('div');
-                    div.classList.add('grid-square');
-                    div.style.left = `${(i % gridSize) * 100}%`; // Percentage-based positioning
-                    div.style.top = `${Math.floor(i / gridSize) * 100}%`; // Percentage-based positioning
-                    div.dataset.index = i;
-
-                    const blackLayer = document.createElement('div');
-                    blackLayer.classList.add('black-layer');
-                    div.appendChild(blackLayer);
-
-                    const oldLayer = document.createElement('div');
-                    oldLayer.classList.add('old-logo');
-                    oldLayer.style.backgroundPosition = `${(i % gridSize) * -100}% ${Math.floor(i / gridSize) * -100}%`; // Percentage-based positioning
-                    div.appendChild(oldLayer);
-
-                    if (revealedIndexes.includes(i)) {
-                        div.classList.add('revealed');
-                        const blackLayer = div.querySelector('.black-layer');
-                        if (blackLayer) {
-                            blackLayer.remove();
-                        }
-                    }
-
-                    grid.appendChild(div);
+                    const gridSquare = createGridSquare(i); // Call the function here!
+                    grid.appendChild(gridSquare);
                 }
 
                 grid.classList.add('loaded');
@@ -314,6 +292,36 @@
         progress.style.opacity = 1;
     }
 }
+
+function createGridSquare(i) {
+            const div = document.createElement('div');
+            div.classList.add('grid-square');
+
+            // Calculate row and column
+            const row = Math.floor(i / gridSize);
+            const col = i % gridSize;
+
+            // Use transform: translate for positioning. Handles scaling correctly.
+            div.style.transform = `translate(${col * (100 / gridSize)}%, ${row * (100 / gridSize)}%)`;
+
+            div.dataset.index = i;
+
+            const blackLayer = document.createElement('div');
+            blackLayer.classList.add('black-layer');
+            div.appendChild(blackLayer);
+
+            const oldLayer = document.createElement('div');
+            oldLayer.classList.add('old-logo');
+
+            // Calculate background position using scaling
+            oldLayer.style.transform = `scale(${1/gridSize})`;
+            oldLayer.style.transformOrigin = 'top left'; // Important for correct scaling
+            oldLayer.style.backgroundPosition = `${col * -100}% ${row * -100}%`;
+
+            div.appendChild(oldLayer);
+
+            return div;
+        }
 
 loadRevealedSquares(); // Call loadRevealedSquares to start the process
 </script>
