@@ -91,6 +91,8 @@ body.no-interaction {
     z-index: 2;
     opacity: 1;
     transition: opacity 0.3s ease-in-out; /* Opacity transition on old-logo */
+    position: relative; /* Create new stacking context */
+    z-index: 3; /* Ensure border is on top */
 }
 
 .grid-square.revealed .old-logo {
@@ -109,7 +111,6 @@ body.no-interaction {
     border: 5px solid red !important;
     animation: highlightAnim 1.5s ease-in-out forwards;
 }
-
 
 @keyframes highlightAnim {
     0% { transform: scale(1); opacity: 1; border: 5px solid red !important;} /* Add border at the start */
