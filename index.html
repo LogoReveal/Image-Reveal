@@ -160,119 +160,121 @@ const progress = document.getElementById("progress");
 const introText = document.getElementById("intro-text");
 
 function loadRevealedSquares() {
-        var revealedRef = database.ref("revealedSquares");
-        let revealedIndexes = []; // Initialize revealedIndexes outside the on() callback
-        let introShown = false; // Flag to track if intro text has been shown
+    var revealedRef = database.ref("revealedSquares");
+    let revealedIndexes = [];
+    let introShown = false;
 
-        revealedRef.on("value", function(snapshot) {
-            revealedIndexes = snapshot.val() || []; // Update revealedIndexes with Firebase data
-            if (!Array.isArray(revealedIndexes)) {
-                revealedIndexes = [];
-            }
+    revealedRef.on("value", function(snapshot) {
+        revealedIndexes = snapshot.val() || [];
+        if (!Array.isArray(revealedIndexes)) {
+            revealedIndexes = [];
+        }
 
-            grid.innerHTML = "";
-            for (let i = 0; i < totalSquares; i++) {
-                const div = document.createElement('div');
-                div.classList.add('grid-square');
-                div.style.left = `${(i % gridSize) * 50}px`;
-                div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                div.dataset.index = i;
+        grid.innerHTML = "";
+        for (let i = 0; i < totalSquares; i++) {
+            const div = document.createElement('div');
+            div.classList.add('grid-square');
+            div.style.left = `${(i % gridSize) * 50}px`;
+            div.style.top = `${Math.floor(i / gridSize) * 50}px`;
+            div.dataset.index = i;
 
-                const blackLayer = document.createElement('div');
-                blackLayer.classList.add('black-layer');
-                div.appendChild(blackLayer);
+            const blackLayer = document.createElement('div');
+            blackLayer.classList.add('black-layer');
+            div.appendChild(blackLayer);
 
-                const oldLayer = document.createElement('div');
-                oldLayer.classList.add('old-logo');
-                oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-                div.appendChild(oldLayer);
+            const oldLayer = document.createElement('div');
+            oldLayer.classList.add('old-logo');
+            oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
+            div.appendChild(oldLayer);
 
-                if (revealedIndexes.includes(i)) {
-                    div.classList.add('revealed');
-                    const blackLayer = div.querySelector('.black-layer');
-                    if (blackLayer) {
-                        blackLayer.remove();
-                    }
+            if (revealedIndexes.includes(i)) {
+                div.classList.add('revealed');
+                const blackLayer = div.querySelector('.black-layer');
+                if (blackLayer) {
+                    blackLayer.remove();
                 }
-
-                grid.appendChild(div);
             }
 
-            grid.classList.add('loaded');
-            document.body.classList.add('no-interaction');
+            grid.appendChild(div);
+        }
 
-            if (!introShown) { // Show intro text only once
+        grid.classList.add('loaded');
+        document.body.classList.add('no-interaction');
+
+        if (!introShown) {
+            setTimeout(() => {
+                introText.style.opacity = 1;
                 setTimeout(() => {
-                    introText.style.opacity = 1;
+                    introText.style.opacity = 0;
+                    document.body.classList.remove('no-interaction');
+                    introShown = true;
+                    revealNextSquare();
+                }, 3000);
+            }, 500);
+        } else {
+            revealNextSquare();
+        }
+    }, function(error) {
+        console.error("Firebase Read Error:", error);
+    });
+
+    let revealing = false;
+    let animationDuration = 1500;
+    let messageDisplayDelay = 500; // Delay after animation before next reveal
+
+    function revealNextSquare() {
+        if (revealing) return;
+
+        let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+
+        if (remainingSquares.length > 0) {
+            let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+            revealedIndexes.push(newIndex);
+            let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+
+            if (newSquare) {
+                revealing = true;
+
+                setTimeout(() => {
+                    message.innerText = "A new part of the logo is about to be revealed...";
+                    message.style.opacity = 1;
+
                     setTimeout(() => {
-                        introText.style.opacity = 0;
-                        document.body.classList.remove('no-interaction');
-                        introShown = true; // Set flag to true
-                        revealNextSquare(); // Start auto-reveal after intro text
-                    }, 3000);
-                }, 500);
-            } else {
-                revealNextSquare(); // If intro was already shown, reveal the next square directly
-            }
-
-        }, function(error) {
-            console.error("Firebase Read Error:", error);
-        });
-
-        let revealing = false; // Flag to prevent multiple reveals at the same time
-
-        function revealNextSquare() {
-            if (revealing) return; // If a reveal is already in progress, do nothing
-
-            let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
-
-            if (remainingSquares.length > 0) {
-                let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                revealedIndexes.push(newIndex);
-                let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
-
-                if (newSquare) {
-                    revealing = true; // Set revealing flag to true
-
-                    setTimeout(() => {
-                        message.innerText = "A new part of the logo is about to be revealed...";
-                        message.style.opacity = 1;
-
+                        newSquare.classList.add("highlight");
                         setTimeout(() => {
-                            newSquare.classList.add("highlight");
-                            setTimeout(() => {
-                                newSquare.classList.add("revealed");
-                                const blackLayer = newSquare.querySelector('.black-layer');
-                                if (blackLayer) {
-                                    blackLayer.remove();
-                                }
+                            newSquare.classList.add("revealed");
+                            const blackLayer = newSquare.querySelector('.black-layer');
+                            if (blackLayer) {
+                                blackLayer.remove();
+                            }
 
-                                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                            message.innerText = "Another piece is transformed! Let’s complete the logo together.";
 
-                                let revealedCount = revealedIndexes.length;
-                                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                                progress.style.opacity = 1;
+                            let revealedCount = revealedIndexes.length;
+                            progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                            progress.style.opacity = 1;
 
-                                revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                                    .catch((error) => console.error("Firebase Write Error:", error));
+                            revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                                .catch((error) => console.error("Firebase Write Error:", error));
 
-                                revealing = false; // Reset revealing flag *after* animation completes
-                                revealNextSquare(); // Reveal the next square
+                            // *** KEY CHANGE: Reveal next square after animation AND message display ***
+                            setTimeout(revealNextSquare, animationDuration + messageDisplayDelay);
 
-                            }, 1500); // Animation duration
-                        }, 1000); // Delay before animation
-                    }, 1000); // Delay before "about to be revealed" message
-                }
-            } else {
-                message.innerText = "The entire logo has been revealed! 🎉";
-                message.style.opacity = 1;
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                progress.style.opacity = 1;
+                            revealing = false;
+
+                        }, animationDuration); // Animation duration
+                    }, 1000); // Delay before animation
+                }, 1000); // Delay before "about to be revealed" message
             }
+        } else {
+            message.innerText = "The entire logo has been revealed! 🎉";
+            message.style.opacity = 1;
+            let revealedCount = revealedIndexes.length;
+            progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+            progress.style.opacity = 1;
         }
     }
-
+}
     loadRevealedSquares();
     </script>
 
