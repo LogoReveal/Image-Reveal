@@ -162,13 +162,13 @@ const introText = document.getElementById("intro-text");
 function loadRevealedSquares() {
     var revealedRef = database.ref("revealedSquares");
 
-    revealedRef.once("value", function(snapshot) {
+    revealedRef.on("value", function(snapshot) {
         var revealedIndexes = snapshot.val() || [];
         if (!Array.isArray(revealedIndexes)) {
             revealedIndexes = [];
         }
 
-        grid.innerHTML = "";
+        grid.innerHTML = ""; // Clear the grid *before* rebuilding
         for (let i = 0; i < totalSquares; i++) {
             const div = document.createElement('div');
             div.classList.add('grid-square');
@@ -187,6 +187,10 @@ function loadRevealedSquares() {
 
             if (revealedIndexes.includes(i)) {
                 div.classList.add('revealed');
+                const blackLayer = div.querySelector('.black-layer');
+                if (blackLayer) {
+                    blackLayer.remove();
+                }
             }
 
             grid.appendChild(div);
@@ -210,31 +214,30 @@ function loadRevealedSquares() {
 
                         let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                         if (newSquare) {
-    setTimeout(() => {
-        message.innerText = "A new part of the logo is about to be revealed...";
-        message.style.opacity = 1;
+                            setTimeout(() => {
+                                message.innerText = "A new part of the logo is about to be revealed...";
+                                message.style.opacity = 1;
 
-        setTimeout(() => {
-            newSquare.classList.add("highlight");
-            setTimeout(() => {
-                newSquare.classList.add("revealed");
+                                setTimeout(() => {
+                                    newSquare.classList.add("highlight");
+                                    setTimeout(() => {
+                                        newSquare.classList.add("revealed");
 
-                // *** Add these lines ***
-                const blackLayer = newSquare.querySelector('.black-layer');
-                if (blackLayer) {
-                    blackLayer.remove(); // Or blackLayer.style.display = 'none';
-                }
+                                        const blackLayer = newSquare.querySelector('.black-layer');
+                                        if (blackLayer) {
+                                            blackLayer.remove();
+                                        }
 
-                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                        message.innerText = "Another piece is transformed! Let’s complete the logo together.";
 
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                progress.style.opacity = 1;
+                                        let revealedCount = revealedIndexes.length;
+                                        progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                                        progress.style.opacity = 1;
 
-            }, 1500);
-        }, 1000);
-    }, 1000);
-}
+                                    }, 1500);
+                                }, 1000);
+                            }, 1000);
+                        }
 
                         revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
                             .catch((error) => console.error("Firebase Write Error:", error));
@@ -248,7 +251,9 @@ function loadRevealedSquares() {
                 }, 500); // Delay for intro text (3s) + buffer (0.5s)
             }, 3000); // Intro text fade out time
         }, 500); // Initial delay before intro text appears
-    }).catch(error => console.error("Firebase Read Error:", error));
+    }, function(error) {
+        console.error("Firebase Read Error:", error);
+    });
 }
 
 loadRevealedSquares();
