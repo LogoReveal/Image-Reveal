@@ -241,7 +241,6 @@ body.no-interaction {
     });
 
     // ... rest of the JavaScript code (no changes needed below this point)
-}
 
         let revealing = false;
         let animationDuration = 1500;
@@ -261,7 +260,7 @@ body.no-interaction {
                     revealing = true;
 
                     setTimeout(() => {
-                        message.innerText = "A new part of the logo is about to be revealed...";
+                        message.innerText = "A new piece of the Logo is about to be revealed...⌛";
                         message.style.opacity = 1;
 
                         setTimeout(() => {
@@ -275,7 +274,7 @@ body.no-interaction {
                                         blackLayer.remove();
                                     }
 
-                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+                                    message.innerText = "Another piece is transformed!🤩";
 
                                     let revealedCount = revealedIndexes.length;
                                     progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
@@ -294,13 +293,13 @@ body.no-interaction {
                     }, 1000); // Delay before "about to be revealed" message
                 }
             } else {
-                message.innerText = "The entire logo has been revealed! 🎉";
+                message.innerText = "The NEEV 2024 Logo has been revealed! 🎉";
                 message.style.opacity = 1;
                 let revealedCount = revealedIndexes.length;
                 progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
                 progress.style.opacity = 1;
             }
-        }
+	}
 }
     loadRevealedSquares();
 </script>
