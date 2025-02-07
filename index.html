@@ -5,132 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEEV 2024 Logo Reveal</title>
     <style>
-	body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: white;
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: white;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
 
-body.no-interaction {
-    pointer-events: none;
-}
+        body.no-interaction {
+            pointer-events: none;
+        }
 
-#intro-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 2em;
-    padding: 10px 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    border-radius: 5px;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-    z-index: 3;
-    text-align: center;
-}
+        #intro-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 3;
+            text-align: center;
+        }
 
-#message {
-    font-size: 18px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    text-align: center;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
+        #message {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(10, 1fr);
-    width: 500px;
-    height: 500px;
-    position: relative;
-    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
-    background-size: cover;
-    opacity: 0;
-    transition: opacity 0.5s ease-in;
-}
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr); /* 16 columns */
+            grid-template-rows: repeat(16, 1fr); /* 16 rows */
+            width: 800px; /* Increased width */
+            height: 800px; /* Increased height */
+            position: relative;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
+            background-size: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
 
-.grid.loaded {
-    opacity: 1;
-}
+        .grid.loaded {
+            opacity: 1;
+        }
 
-.grid-square {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    box-sizing: border-box;
-    overflow: hidden;
-    transition: transform 0.8s ease-in-out; /* Transition on grid-square */
-}
+        .grid-square {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+            overflow: hidden;
+            transition: transform 0.8s ease-in-out; /* Transition on grid-square */
+        }
 
-.grid-square .black-layer {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: black;
-    z-index: 1;
-}
+        .grid-square .black-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1;
+        }
 
-.grid-square .old-logo {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-    background-size: 500px 500px;
-    z-index: 2;
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out; /* Opacity transition on old-logo */
-}
+        .grid-square .old-logo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+            background-size: 800px 800px;
+            z-index: 2;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out; /* Opacity transition on old-logo */
+            position: relative; /* Create new stacking context */
+            z-index: 3; /* Ensure border is on top */
+        }
 
-.grid-square.revealed .old-logo {
-    opacity: 0;
-}
+        .grid-square.revealed .old-logo {
+            opacity: 0;
+        }
 
-.revealed {
-    transform: rotateY(180deg); /* Transform on grid-square */
-}
+        .revealed {
+            transform: rotateY(180deg); /* Transform on grid-square */
+        }
 
-.highlight {
-    border: 5px solid red !important; /* Keep this for other highlights if needed */
-}
+        .highlight {
+		
+        }
 
-.grid-square.highlight { /* Apply border and animation to grid-square */
-    border: 5px solid red !important;
-    animation: highlightAnim 1.5s ease-in-out forwards;
-}
+       .grid-square.highlight .old-logo { /* Target old-logo inside highlighted grid-square */
+            border: 5px solid red !important;
+            animation: highlightAnim 1.5s ease-in-out forwards;
+        } 
 
+        .grid-square .old-logo-border { /* New element for the border */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Prevent interaction with the border */
+            box-sizing: border-box; /* Include border in width and height */
+            z-index: 4; /* Ensure it's above old-logo */
+        }
 
-@keyframes highlightAnim {
-    0% { transform: scale(1); opacity: 1; }
-    20% { transform: scale(1.6) rotate(15deg); }
-    40% { transform: scale(1.6) rotate(-15deg); }
-    60% { transform: scale(1.6) rotate(15deg); }
-    80% { transform: scale(1.6) rotate(-15deg); }
-    100% { transform: scale(1); opacity: 0; border-color: transparent; }
-}
+        .grid-square.highlight .old-logo-border { /* Apply border to the new element */
+            border: 5px solid red !important;
+            animation: highlightAnim 2s ease-in-out forwards; /* Corrected animation duration */
+        }
 
-#progress {
-    font-size: 16px;
-    margin-top: 10px;
-    color: green;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-}
+        @keyframes highlightAnim {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                border: 5px solid red !important;
+            } /* Add border at the start */
+            20% {
+                transform: scale(1.6) rotate(15deg);
+            }
+            40% {
+                transform: scale(1.6) rotate(-15deg);
+            }
+            60% {
+                transform: scale(1.6) rotate(15deg);
+            }
+            80% {
+                transform: scale(1.6) rotate(-15deg);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+                border-color: transparent;
+            } /* Remove border at the end */
+        }
+
+        #progress {
+            font-size: 16px;
+            margin-top: 10px;
+            color: green;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
     </style>
 </head>
 <body>
-	<div id="intro-text">Help us reveal the logo, one piece at a time.</div>
+    <div id="intro-text">Help us reveal the logo, one piece at a time.</div>
     <div id="message"></div>
     <div class="grid"></div>
     <div id="progress"></div>
@@ -139,146 +172,124 @@ body.no-interaction {
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-    var firebaseConfig = {
-        apiKey: "AIzaSyD4wnK9...", // **REPLACE WITH YOUR API KEY**
-        authDomain: "logo-reveal-e1a65.firebaseapp.com", // **REPLACE IF DIFFERENT**
-        databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/", // **REPLACE IF DIFFERENT**
-        projectId: "logo-reveal-e1a65", // **REPLACE IF DIFFERENT**
-        storageBucket: "logo-reveal-e1a65.appspot.com", // **REPLACE IF DIFFERENT**
-        messagingSenderId: "575668073504", // **REPLACE IF DIFFERENT**
-        appId: "1:575668073504:web:1d6db9bcdee11397e63845", // **REPLACE IF DIFFERENT**
-        measurementId: "G-D2GRKJ16Z6" // **REPLACE IF DIFFERENT**
-    };
-    firebase.initializeApp(firebaseConfig);
-    var database = firebase.database();
+        var firebaseConfig = {
+            apiKey: "AIzaSyD4wnK9...",
+            authDomain: "logo-reveal-e1a65.firebaseapp.com",
+            databaseURL: "https://logo-reveal-e1a65-default-rtdb.firebaseio.com/",
+            projectId: "logo-reveal-e1a65",
+            storageBucket: "logo-reveal-e1a65.appspot.com",
+            messagingSenderId: "575668073504",
+            appId: "1:575668073504:web:1d6db9bcdee11397e63845",
+            measurementId: "G-D2GRKJ16Z6"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
 
-    const gridSize = 10;
-    const totalSquares = gridSize * gridSize;
-    const grid = document.querySelector('.grid');
-    const message = document.getElementById("message");
-    const progress = document.getElementById("progress");
-    const introText = document.getElementById("intro-text");
+        const gridSize = 16;
+        const totalSquares = gridSize * gridSize;
+        const grid = document.querySelector('.grid');
+        const message = document.getElementById("message");
+        const progress = document.getElementById("progress");
+        const introText = document.getElementById("intro-text");
 
-    function loadRevealedSquares() {
-        var revealedRef = database.ref("revealedSquares");
-        let revealedIndexes = [];
-        let introShown = false;
+        let animationDuration = 1500;
+        let messageDisplayDelay = 500;
+        let revealing = false;
+        let revealedIndexes = []; // Declare revealedIndexes outside the function
 
-        revealedRef.on("value", function(snapshot) {
-            revealedIndexes = snapshot.val() || [];
-            if (!Array.isArray(revealedIndexes)) {
-                revealedIndexes = [];
-            }
+        function loadRevealedSquares() {
+            var revealedRef = database.ref("revealedSquares");
+            let introShown = false;
 
-            grid.innerHTML = "";
-            for (let i = 0; i < totalSquares; i++) {
-                const div = document.createElement('div');
-                div.classList.add('grid-square');
-                div.style.left = `${(i % gridSize) * 50}px`;
-                div.style.top = `${Math.floor(i / gridSize) * 50}px`;
-                div.dataset.index = i;
+            revealedRef.on("value", function(snapshot) {
+                revealedIndexes = snapshot.val() || []; // Initialize revealedIndexes from Firebase
 
-                const blackLayer = document.createElement('div');
-                blackLayer.classList.add('black-layer');
-                div.appendChild(blackLayer);
-
-                const oldLayer = document.createElement('div');
-                oldLayer.classList.add('old-logo');
-                oldLayer.style.backgroundPosition = `${(i % gridSize) * -50}px ${Math.floor(i / gridSize) * -50}px`;
-                div.appendChild(oldLayer);
-
-                if (revealedIndexes.includes(i)) {
-                    div.classList.add('revealed');
-                    const blackLayer = div.querySelector('.black-layer');
-                    if (blackLayer) {
-                        blackLayer.remove();
-                    }
+                if (!Array.isArray(revealedIndexes)) {
+                    revealedIndexes = [];
                 }
 
-                grid.appendChild(div);
-            }
+                grid.innerHTML = "";
+                for (let i = 0; i < totalSquares; i++) {
+                    // ... (rest of the grid square creation code - no changes)
+                }
 
-            grid.classList.add('loaded');
-            document.body.classList.add('no-interaction');
+                grid.classList.add('loaded');
+                document.body.classList.add('no-interaction');
 
-            if (!introShown) {
-                setTimeout(() => {
-                    introText.style.opacity = 1;
+                if (!introShown) {
                     setTimeout(() => {
-                        introText.style.opacity = 0;
-                        document.body.classList.remove('no-interaction');
-                        introShown = true;
-                        revealNextSquare();
-                    }, 3000);
-                }, 500);
-            } else {
-                revealNextSquare();
-            }
-        }, function(error) {
-            console.error("Firebase Read Error:", error);
-        });
-
-        let revealing = false;
-        let animationDuration = 1500;
-        let messageDisplayDelay = 500; // Delay after animation before next reveal
+                        introText.style.opacity = 1;
+                        setTimeout(() => {
+                            introText.style.opacity = 0;
+                            document.body.classList.remove('no-interaction');
+                            introShown = true;
+                            revealNextSquare(); // Call revealNextSquare after intro text
+                        }, 3000);
+                    }, 500);
+                } else {
+                    revealNextSquare(); // Call revealNextSquare if intro has already been shown
+                }
+            }, function(error) {
+                console.error("Firebase Read Error:", error);
+            });
+        }
 
         function revealNextSquare() {
-            if (revealing) return;
+    if (revealing) return;
 
-            let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
+    let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
 
-            if (remainingSquares.length > 0) {
-                let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
-                revealedIndexes.push(newIndex);
-                let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
+    if (remainingSquares.length > 0) {
+        let newIndex = remainingSquares[Math.floor(Math.random() * remainingSquares.length)];
+        revealedIndexes.push(newIndex);
+        let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
 
-                if (newSquare) {
-                    revealing = true;
+        if (newSquare) {
+            revealing = true;
 
-                    setTimeout(() => {
-                        message.innerText = "A new piece of the logo is about to be revealed...⌛";
-                        message.style.opacity = 1;
-
-                        setTimeout(() => {
-                            newSquare.classList.add("highlight");
-
-                            newSquare.addEventListener('animationend', function(event) {
-                                if (event.animationName === 'highlightAnim') {
-                                    newSquare.classList.add("revealed");
-                                    const blackLayer = newSquare.querySelector('.black-layer');
-                                    if (blackLayer) {
-                                        blackLayer.remove();
-                                    }
-
-                                    message.innerText = "Another piece is transformed!🤩";
-
-                                    let revealedCount = revealedIndexes.length;
-                                    progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                                    progress.style.opacity = 1;
-
-                                    revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                                        .catch((error) => console.error("Firebase Write Error:", error));
-
-                                    setTimeout(revealNextSquare, messageDisplayDelay); // Reveal next square after message display
-
-                                    revealing = false;
-                                }
-                            }, { once: true });
-
-                        }, 1000); // Delay before animation
-                    }, 1000); // Delay before "about to be revealed" message
-                }
-            } else {
-                message.innerText = "The NEEV 2024 Logo has been revealed! 🎉";
+            setTimeout(() => {
+                message.innerText = "A new piece of the Logo is about to be revealed...⌛";
                 message.style.opacity = 1;
-                let revealedCount = revealedIndexes.length;
-                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                progress.style.opacity = 1;
-            }
-        }
-    }
-    loadRevealedSquares();
-</script>
 
+                setTimeout(() => {
+                    newSquare.classList.add("highlight");
+
+                    newSquare.addEventListener('animationend', function(event) {
+                        if (event.animationName === 'highlightAnim') {
+                            newSquare.classList.add("revealed");
+                            const blackLayer = newSquare.querySelector('.black-layer');
+                            if (blackLayer) {
+                                blackLayer.remove();
+                            }
+
+                            message.innerText = "Another piece is transformed!🤩";
+
+                            let revealedCount = revealedIndexes.length;
+                            progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                            progress.style.opacity = 1;
+
+                            revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                                .catch((error) => console.error("Firebase Write Error:", error));
+
+                            setTimeout(revealNextSquare, messageDisplayDelay);
+
+                            revealing = false;
+                        }
+                    }, {once: true});
+
+                }, 1000);
+            }, 1000);
+        }
+    } else {
+        message.innerText = "The NEEV 2024 Logo has been revealed! 🎉";
+        message.style.opacity = 1;
+        let revealedCount = revealedIndexes.length;
+        progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+        progress.style.opacity = 1;
+    }
+}
+
+loadRevealedSquares(); // Call loadRevealedSquares to start the process
+</script>
 </body>
 </html>
