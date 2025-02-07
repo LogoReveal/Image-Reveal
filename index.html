@@ -176,6 +176,10 @@ body.no-interaction {
     const progress = document.getElementById("progress");
     const introText = document.getElementById("intro-text");
 
+    let animationDuration = 1500; // Moved outside
+    let messageDisplayDelay = 500; // Moved outside
+    let revealing = false; // Moved outside
+
     function loadRevealedSquares() {
     var revealedRef = database.ref("revealedSquares");
     let revealedIndexes = [];
@@ -245,6 +249,7 @@ body.no-interaction {
         let revealing = false;
         let animationDuration = 1500;
         let messageDisplayDelay = 500; // Delay after animation before next reveal
+    }
 
         function revealNextSquare() {
             if (revealing) return;
@@ -300,7 +305,6 @@ body.no-interaction {
                 progress.style.opacity = 1;
             }
 	}
-    }
     loadRevealedSquares();
 </script>
 
