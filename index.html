@@ -102,22 +102,22 @@ body.no-interaction {
 }
 
 .highlight {
-    border: 5px solid red !important; /* Keep this for other highlights if needed */
+    
 }
 
-.grid-square.highlight { /* Apply border and animation to grid-square */
+.grid-square.highlight .old-logo { /* Target old-logo inside highlighted grid-square */
     border: 5px solid red !important;
     animation: highlightAnim 1.5s ease-in-out forwards;
 }
 
 
 @keyframes highlightAnim {
-    0% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(1); opacity: 1; border: 5px solid red !important;} /* Add border at the start */
     20% { transform: scale(1.6) rotate(15deg); }
     40% { transform: scale(1.6) rotate(-15deg); }
     60% { transform: scale(1.6) rotate(15deg); }
     80% { transform: scale(1.6) rotate(-15deg); }
-    100% { transform: scale(1); opacity: 0; border-color: transparent; }
+    100% { transform: scale(1); opacity: 0; border-color: transparent; } /* Remove border at the end */
 }
 
 #progress {
