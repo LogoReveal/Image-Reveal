@@ -205,7 +205,9 @@
             let introShown = false;
 
             revealedRef.on("value", function(snapshot) {
-                revealedIndexes = snapshot.val() || []; // Initialize revealedIndexes from Firebase
+                const data = snapshot.val(); // Get the data from Firebase
+                revealedIndexes = data ? Object.values(data) : []; // Correctly handle Firebase data
+		
 
                 if (!Array.isArray(revealedIndexes)) {
                     revealedIndexes = [];
@@ -213,8 +215,16 @@
 
                 grid.innerHTML = "";
                 for (let i = 0; i < totalSquares; i++) {
-                    const gridSquare = createGridSquare(i); // Call the function here!
+                    const gridSquare = createGridSquare(i);
                     grid.appendChild(gridSquare);
+
+                    if (revealedIndexes.includes(i)) { // Reveal squares already in Firebase
+                        gridSquare.classList.add('revealed');
+                        const blackLayer = gridSquare.querySelector('.black-layer');
+                        if (blackLayer) {
+                            blackLayer.remove();
+                        }
+                    }
                 }
 
                 grid.classList.add('loaded');
