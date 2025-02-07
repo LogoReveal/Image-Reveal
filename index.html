@@ -210,24 +210,31 @@ function loadRevealedSquares() {
 
                         let newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
                         if (newSquare) {
-                            setTimeout(() => {
-                                message.innerText = "A new part of the logo is about to be revealed...";
-                                message.style.opacity = 1;
+    setTimeout(() => {
+        message.innerText = "A new part of the logo is about to be revealed...";
+        message.style.opacity = 1;
 
-                                setTimeout(() => {
-                                    newSquare.classList.add("highlight");
-                                    setTimeout(() => {
-                                        newSquare.classList.add("revealed");
-                                        message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+        setTimeout(() => {
+            newSquare.classList.add("highlight");
+            setTimeout(() => {
+                newSquare.classList.add("revealed");
 
-                                        let revealedCount = revealedIndexes.length;
-                                        progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                                        progress.style.opacity = 1;
+                // *** Add these lines ***
+                const blackLayer = newSquare.querySelector('.black-layer');
+                if (blackLayer) {
+                    blackLayer.remove(); // Or blackLayer.style.display = 'none';
+                }
 
-                                    }, 1500);
-                                }, 1000);
-                            }, 1000);
-                        }
+                message.innerText = "Another piece is transformed! Let’s complete the logo together.";
+
+                let revealedCount = revealedIndexes.length;
+                progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+                progress.style.opacity = 1;
+
+            }, 1500);
+        }, 1000);
+    }, 1000);
+}
 
                         revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
                             .catch((error) => console.error("Firebase Write Error:", error));
