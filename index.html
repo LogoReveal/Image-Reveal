@@ -243,13 +243,8 @@ body.no-interaction {
     }, function(error) {
         console.error("Firebase Read Error:", error);
     });
-
-    // ... rest of the JavaScript code (no changes needed below this point)
-
-        let revealing = false;
-        let animationDuration = 1500;
-        let messageDisplayDelay = 500; // Delay after animation before next reveal
     }
+    // ... rest of the JavaScript code (no changes needed below this point)
 
         function revealNextSquare() {
             if (revealing) return;
@@ -307,6 +302,5 @@ body.no-interaction {
 	}
     loadRevealedSquares();
 </script>
-
 </body>
 </html>
