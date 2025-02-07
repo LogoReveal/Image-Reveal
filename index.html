@@ -125,7 +125,7 @@ body.no-interaction {
 
 .grid-square.highlight .old-logo-border { /* Apply border to the new element */
     border: 5px solid red !important;
-    animation: highlightAnim 1.5s ease-in-out forwards;
+    animation: highlightAnim 2s ease-in-out forwards;
 }
 
 @keyframes highlightAnim {
@@ -176,8 +176,7 @@ body.no-interaction {
     const progress = document.getElementById("progress");
     const introText = document.getElementById("intro-text");
 
-    function loadRevealedSquares() 
-{
+    function loadRevealedSquares() {
     var revealedRef = database.ref("revealedSquares");
     let revealedIndexes = [];
     let introShown = false;
@@ -242,13 +241,13 @@ body.no-interaction {
     });
 
     // ... rest of the JavaScript code (no changes needed below this point)
+}
 
         let revealing = false;
         let animationDuration = 1500;
         let messageDisplayDelay = 500; // Delay after animation before next reveal
 
-        function revealNextSquare() 
-{
+        function revealNextSquare() {
             if (revealing) return;
 
             let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
@@ -262,7 +261,7 @@ body.no-interaction {
                     revealing = true;
 
                     setTimeout(() => {
-                        message.innerText = "A new piece of the Logo is about to be revealed...⌛";
+                        message.innerText = "A new part of the logo is about to be revealed...";
                         message.style.opacity = 1;
 
                         setTimeout(() => {
@@ -276,7 +275,7 @@ body.no-interaction {
                                         blackLayer.remove();
                                     }
 
-                                    message.innerText = "Another piece is transformed!🤩";
+                                    message.innerText = "Another piece is transformed! Let’s complete the logo together.";
 
                                     let revealedCount = revealedIndexes.length;
                                     progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
@@ -295,13 +294,13 @@ body.no-interaction {
                     }, 1000); // Delay before "about to be revealed" message
                 }
             } else {
-                message.innerText = "Presenting to you, the NEEV 2024 Logo!🎉";
+                message.innerText = "The entire logo has been revealed! 🎉";
                 message.style.opacity = 1;
                 let revealedCount = revealedIndexes.length;
                 progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
                 progress.style.opacity = 1;
             }
-}
+        }
 }
     loadRevealedSquares();
 </script>
