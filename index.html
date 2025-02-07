@@ -199,6 +199,7 @@
         let messageDisplayDelay = 500;
         let revealing = false;
         let revealedIndexes = []; // Declare revealedIndexes outside the function
+	let revealedRef;
 
         function loadRevealedSquares() {
             revealedRef = database.ref("revealedSquares");
@@ -218,11 +219,8 @@
                     const gridSquare = createGridSquare(i);
                     grid.appendChild(gridSquare);
 
-                    if (revealedIndexes.includes(i)) { // Reveal squares already in Firebase
-                        gridSquare.classList.add('revealed');
-                        const blackLayer = gridSquare.querySelector('.black-layer');
-                        if (blackLayer) {
-                            blackLayer.remove();
+                    if (revealedIndexes.includes(i)) { 
+				revealSquare(gridSquare);
                         }
                     }
                 }
@@ -266,29 +264,14 @@
                 message.style.opacity = 1;
 
                 setTimeout(() => {
-                    newSquare.classList.add("highlight");
+                            newSquare.style.animation = "highlightAnim 1.5s ease-in-out forwards"; // Start animation
 
                     newSquare.addEventListener('animationend', function(event) {
-                        if (event.animationName === 'highlightAnim') {
-                            newSquare.classList.add("revealed");
-                            const blackLayer = newSquare.querySelector('.black-layer');
-                            if (blackLayer) {
-                                blackLayer.remove();
-                            }
-
-                            message.innerText = "Another piece is transformed!🤩";
-
-                            let revealedCount = revealedIndexes.length;
-                            progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
-                            progress.style.opacity = 1;
-
-                            revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
-                                .catch((error) => console.error("Firebase Write Error:", error));
-
-                            setTimeout(revealNextSquare, messageDisplayDelay);
-
-                            revealing = false;
-                        }
+                                if (event.animationName === 'highlightAnim' && !newSquare.classList.contains('revealed')) {
+                                    revealSquare(newSquare);
+                                    newSquare.style.animation = ""; // Reset animation
+                                    revealing = false;
+                                }
                     }, {once: true});
 
                 }, 1000);
@@ -302,6 +285,25 @@
         progress.style.opacity = 1;
     }
 }
+
+	function revealSquare(square) {
+            square.classList.add('revealed');
+            const blackLayer = square.querySelector('.black-layer');
+            if (blackLayer) {
+                blackLayer.remove();
+            }
+
+            message.innerText = "Another piece is transformed!🤩";
+
+            let revealedCount = revealedIndexes.length;
+            progress.innerText = `${Math.round((revealedCount / totalSquares) * 100)}% revealed`;
+            progress.style.opacity = 1;
+
+            revealedRef.set(revealedIndexes).then(() => console.log("Firebase Updated Successfully"))
+                .catch((error) => console.error("Firebase Write Error:", error));
+
+            setTimeout(revealNextSquare, messageDisplayDelay);
+        }
 
 function createGridSquare(i) {
             const div = document.createElement('div');
