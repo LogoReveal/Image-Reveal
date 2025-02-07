@@ -176,7 +176,8 @@ body.no-interaction {
     const progress = document.getElementById("progress");
     const introText = document.getElementById("intro-text");
 
-    function loadRevealedSquares() {
+    function loadRevealedSquares() 
+{
     var revealedRef = database.ref("revealedSquares");
     let revealedIndexes = [];
     let introShown = false;
@@ -247,7 +248,8 @@ body.no-interaction {
         let animationDuration = 1500;
         let messageDisplayDelay = 500; // Delay after animation before next reveal
 
-        function revealNextSquare() {
+        function revealNextSquare() 
+{
             if (revealing) return;
 
             let remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
@@ -301,7 +303,6 @@ body.no-interaction {
                 progress.style.opacity = 1;
             }
 	}
-	    }    
     loadRevealedSquares();
 </script>
 
