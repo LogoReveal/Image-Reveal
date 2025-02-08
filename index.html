@@ -1,3 +1,5 @@
+This code does the red border and animation properly. It also autoreveals the smaller squares one at a time. Changes to be done: each small square shows the full old image and not a part of it. I guess changing the css should do.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,15 +83,18 @@
         }
 
         .grid-square .old-logo {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: 100% 100%; /* Simplified background sizing */
-            z-index: 2;
-            opacity: 1;
-            transition: opacity 0.3s ease-in-out;
-        }
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+    background-size: contain; /* Ensure each square displays the full old image */
+    background-position: center;
+    background-repeat: no-repeat; /* Prevent tiling */
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
 
         .grid-square.revealed .old-logo {
             opacity: 0;
@@ -153,18 +158,9 @@
             let revealedIndexes = [];
             let introShown = false;
 
-		let initialLoad = true; // Flag to track initial load
-
-    revealedRef.once("value", (snapshot) => {  // Use .once to only run this once
-        if (initialLoad && !snapshot.exists()) {  // If it's the initial load and Firebase is empty
-            revealedRef.set([]); // Set to empty array
-            console.log("Cleared revealedSquares in Firebase.");
-        }
-        initialLoad = false; // Set flag to false after initial load
-
-
-        revealedIndexes = snapshot.val() || [];
-        if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
+            revealedRef.on("value", (snapshot) => {
+                revealedIndexes = snapshot.val() || [];
+                if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
 
                 // Clear and rebuild the grid
                 grid.innerHTML = "";
@@ -207,9 +203,6 @@
 
             const oldLogo = document.createElement('div');
             oldLogo.classList.add('old-logo');
-             if (!isRevealed) { 
-        oldLogo.style.backgroundPosition = `${(index % gridSize) * -(100 / gridSize)}% ${Math.floor(index / gridSize) * -(100 / gridSize)}%`;
-    }
             div.appendChild(oldLogo);
 
             if (isRevealed) {
