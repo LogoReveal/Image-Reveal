@@ -198,7 +198,9 @@
 
             const oldLogo = document.createElement('div');
             oldLogo.classList.add('old-logo');
-            oldLogo.style.backgroundPosition = `${(index % gridSize) * -(100 / gridSize)}% ${Math.floor(index / gridSize) * -(100 / gridSize)}%`;
+             if (!isRevealed) { 
+        oldLogo.style.backgroundPosition = `${(index % gridSize) * -(100 / gridSize)}% ${Math.floor(index / gridSize) * -(100 / gridSize)}%`;
+    }
             div.appendChild(oldLogo);
 
             if (isRevealed) {
