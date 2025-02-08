@@ -153,9 +153,18 @@
             let revealedIndexes = [];
             let introShown = false;
 
-            revealedRef.on("value", (snapshot) => {
-                revealedIndexes = snapshot.val() || [];
-                if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
+		let initialLoad = true; // Flag to track initial load
+
+    revealedRef.once("value", (snapshot) => {  // Use .once to only run this once
+        if (initialLoad && !snapshot.exists()) {  // If it's the initial load and Firebase is empty
+            revealedRef.set([]); // Set to empty array
+            console.log("Cleared revealedSquares in Firebase.");
+        }
+        initialLoad = false; // Set flag to false after initial load
+
+
+        revealedIndexes = snapshot.val() || [];
+        if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
 
                 // Clear and rebuild the grid
                 grid.innerHTML = "";
