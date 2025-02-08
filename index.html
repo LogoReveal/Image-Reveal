@@ -46,16 +46,16 @@
         }
 
         .grid {
-    display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-template-rows: repeat(16, 1fr);
-    width: 80vmin;
-    height: 80vmin;
-    position: relative;
-    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-    background-size: cover;
-    background-position: center;
-opacity: 0;
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(16, 1fr);
+            width: 80vmin; /* Responsive grid size */
+            height: 80vmin; /* Responsive grid size */
+            position: relative;
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true');
+            background-size: 100% 100%; /* Ensure the new logo fits the grid */
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
         }
 
         .grid.loaded {
@@ -71,46 +71,19 @@ opacity: 0;
             overflow: hidden;
         }
 
-        .grid-square .black-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            z-index: 1;
-        }
-
         .grid-square .old-logo {
-    position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            opacity: 1; /* Initially visible */
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: cover;
-            background-position: center;
-            transition: opacity 0.8s ease-in-out; /* Transition for fade-out */
-}
-
-	.grid-square .new-logo { /* New logo styles */
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            z-index: 3;
-            opacity: 0; /* Initially hidden */
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/logo.png?raw=true'); /* New logo image */
-            background-size: cover;
-            background-position: center;
-            transition: opacity 0.8s ease-in-out; /* Transition for fade-in */
+            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+            background-size: 1600% 1600%; /* Divide the old logo into 16x16 squares */
+            background-position: 0 0;
+            z-index: 2;
+            transition: opacity 0.8s ease-in-out;
         }
 
         .grid-square.revealed .old-logo {
             opacity: 0;
-        }
-
-	.grid-square.revealed .new-logo {
-            opacity: 1; /* Fade in new logo */
         }
 
         .highlight {
@@ -204,40 +177,35 @@ opacity: 0;
             });
         }
 
-        
+        // Create a grid square
         function createGridSquare(index, isRevealed) {
             const div = document.createElement('div');
             div.classList.add('grid-square');
             div.dataset.index = index;
 
-            const blackLayer = document.createElement('div');
-            blackLayer.classList.add('black-layer');
-            div.appendChild(blackLayer);
-
             const oldLogo = document.createElement('div');
             oldLogo.classList.add('old-logo');
+            const row = Math.floor(index / gridSize);
+            const col = index % gridSize;
+            oldLogo.style.backgroundPosition = `${(col / (gridSize - 1)) * 100}% ${(row / (gridSize - 1)) * 100}%`;
             div.appendChild(oldLogo);
-
-            const newLogo = document.createElement('div'); // Create new logo element
-            newLogo.classList.add('new-logo');
-            div.appendChild(newLogo);
 
             if (isRevealed) {
                 div.classList.add('revealed');
-                blackLayer.remove();
+                oldLogo.style.opacity = 0;
             }
 
             return div;
         }
 
         // Reveal the next square
+        let revealing = false; // Flag to prevent multiple reveals
         function revealNextSquare() {
-            const revealedRef = database.ref("revealedSquares");
-            let revealedIndexes = [];
-            let revealing = false;
+            if (revealing) return; // Exit if already revealing a square
 
+            const revealedRef = database.ref("revealedSquares");
             revealedRef.once("value", (snapshot) => {
-                revealedIndexes = snapshot.val() || [];
+                let revealedIndexes = snapshot.val() || [];
                 if (!Array.isArray(revealedIndexes)) revealedIndexes = [];
 
                 const remainingSquares = [...Array(totalSquares).keys()].filter(i => !revealedIndexes.includes(i));
@@ -248,7 +216,7 @@ opacity: 0;
                     const newSquare = document.querySelector(`.grid-square[data-index="${newIndex}"]`);
 
                     if (newSquare) {
-                        revealing = true;
+                        revealing = true; // Set flag to prevent overlapping reveals
 
                         setTimeout(() => {
                             message.innerText = "A new part of the logo is about to be revealed...";
@@ -259,7 +227,7 @@ opacity: 0;
 
                                 newSquare.addEventListener('animationend', () => {
                                     newSquare.classList.add("revealed");
-                                    newSquare.querySelector('.black-layer')?.remove();
+                                    newSquare.querySelector('.old-logo').style.opacity = 0;
 
                                     message.innerText = "Another piece is transformed! Let’s complete the logo together.";
                                     const revealedCount = revealedIndexes.length;
@@ -270,8 +238,10 @@ opacity: 0;
                                         .then(() => console.log("Firebase Updated Successfully"))
                                         .catch((error) => console.error("Firebase Write Error:", error));
 
-                                    setTimeout(revealNextSquare, 500);
-                                    revealing = false;
+                                    setTimeout(() => {
+                                        revealing = false; // Reset flag after reveal is complete
+                                        revealNextSquare(); // Reveal the next square
+                                    }, 500);
                                 }, { once: true });
                             }, 1000);
                         }, 1000);
