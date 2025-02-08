@@ -81,15 +81,18 @@
         }
 
         .grid-square .old-logo {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
-            background-size: 100% 100%; /* Simplified background sizing */
-            z-index: 2;
-            opacity: 1;
-            transition: opacity 0.3s ease-in-out;
-        }
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://github.com/LogoReveal/Image-Reveal/blob/main/old_logo.png?raw=true');
+    background-size: contain; /* Ensure each square displays the full old image */
+    background-position: center;
+    background-repeat: no-repeat; /* Prevent tiling */
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
 
         .grid-square.revealed .old-logo {
             opacity: 0;
